@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      (function(){
+        var W;
+        if( typeof WebSocket != 'undefined' )
+          W = WebSocket;
+        else if ( typeof MozWebSocket != 'undefined' )
+          W = MozWebSocket;
+        else
+          return null;
+
+        var ref;
+
+        var suffix = '/ws';
+        var l = window.location;
+
+        var proto = l.protocol in (ref = {
+          "http:":  "ws://",
+          "https:": "wss://"
+        }) && ref[l.protocol] || "ws://";
+
+        function getCommonEchoFunction (type){
+          return function(){
+            sock.send('{"type":"'+type+'","client":true}');
+          };
+        }
+
+        var sock = new W ( proto + l.host + l.pathname + suffix );
+        sock.onmessage = function(msg){ sock.send(msg.data); }
+        sock.onerror   = getCommonEchoFunction('error');
+        sock.onopen    = getCommonEchoFunction('open');
+        sock.onclose   = getCommonEchoFunction('close');
+
+      })();
+    </script>
+  </head>
+  <body> WebSocket Echo Script </body>
+</html>
+

@@ -1,0 +1,70 @@
+{
+  "name": "simple-autoreload-server",
+  "description": "Simple Web Server with live/autoreload features, without browser extensions, for web development.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/cytb/simple-autoreload-server",
+  "author": {
+    "name": "cytb",
+    "url": "https://github.com/cytb/"
+  },
+  "contributors": [
+    {
+      "name": "cytb",
+      "url": "https://github.com/cytb/"
+    }
+  ],
+  "dependencies": {
+    "connect": "~2.12.0",
+    "connect-static-transform": "0.6.3",
+    "colors": "*",
+    "este-watch": "0.0.4",
+    "faye-websocket": ">=0.4.0",
+    "send": "*"
+  },
+  "devDependencies": {
+    "grunt-buster": "~0.2.1",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-livescript": "*",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "prelude-ls": "~1.0.3",
+    "buster": "~0.7.8",
+    "node-phantom": "~0.2.5"
+  },
+  "peerDependencies": {
+    "LiveScript": "1.2.0",
+    "grunt": "~0.4.1"
+  },
+  "keywords": [
+    "autoreload",
+    "websocket",
+    "livereload",
+    "web",
+    "development",
+    "app"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cytochrome/simple-autoreload-server"
+  },
+  "bin": {
+    "autoreload-server": "./bin/autoreload"
+  },
+  "main": "lib/autoreload.js",
+  "scripts": {
+    "prepublish": "npm prune",
+    "test": "grunt test"
+  },
+  "engines": {
+    "node": ">=0.9.2"
+  },
+  "readme": "",
+  "readmeFilename": "README.md"
+}
