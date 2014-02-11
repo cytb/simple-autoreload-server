@@ -57,7 +57,7 @@
   "bin": {
     "autoreload-server": "./bin/autoreload"
   },
-  "main": "lib/autoreload.js",
+  "main": "index.js",
   "scripts": {
     "prepublish": "npm prune",
     "test": "grunt test"
