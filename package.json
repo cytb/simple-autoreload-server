@@ -24,13 +24,13 @@
   "devDependencies": {
     "grunt-buster": "~0.2.1",
     "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-watch": "~0.5.3",
     "grunt-livescript": "*",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-copy": "~0.5.0",
     "prelude-ls": "~1.0.3",
     "buster": "~0.7.8",
-    "node-phantom": "~0.2.5"
+    "node-phantom": "~0.2.5",
+    "grunt-este-watch": "~0.1.15"
   },
   "peerDependencies": {
     "LiveScript": "1.2.0",
