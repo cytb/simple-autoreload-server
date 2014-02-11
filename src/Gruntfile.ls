@@ -63,7 +63,7 @@ module.exports = (grunt)->
   {each,flatten} = require \prelude-ls
 
   # (files, out, src, conf) -> conf-obj
-  path-conv = (files,deco-key,deco-val,conf)->
+  path-conv = (files,deco-key,deco-val,conf)-->
     for k, v of files
       cur = ((conf[k] ?= {}).files = {})
       v |> each (-> cur[ deco-key it ] = deco-val it)
@@ -86,6 +86,10 @@ module.exports = (grunt)->
       src-ls: conv <[ src/    .ls ]>
     }
 
+  conv-tmp-to-rel = (obj)->
+    path-conv files{ src, test, gruntjs }, rel-js, tmp-js, do
+      path-conv files{ bin }, (->it), tmp-js, obj
+
   grunt.init-config do
 
     pkg: grunt.file.readJSON \package.json
@@ -104,24 +108,18 @@ module.exports = (grunt)->
         options: { +bare }
       }
 
-    uglify: path-conv do
-      files{ src, bin }, rel-js, tmp-js,
-      {
-        options:
-          mangle: except: <[ module.exports ]>
-        src: options: banner:  banner
-        bin: options: banner: (shebang + banner)
-      }
+    uglify: conv-tmp-to-rel do
+      options:
+        mangle: except: <[ module.exports ]>
+      src: options: banner:  banner
+      bin: options: banner: (shebang + banner)
 
-    copy: path-conv do
-      files{src,bin,test,gruntjs}, rel-js, tmp-js,
-      {
-        test-tmp: {
-          +expand
-          cwd:'src/test/data'
-          src:'**'
-          dest:'tmp/test/data/'
-        }
+    copy: conv-tmp-to-rel do
+      test-tmp: {
+        +expand
+        cwd:'src/test/data'
+        src:'**'
+        dest:'tmp/test/data/'
       }
 
     este-watch:
@@ -160,7 +158,7 @@ module.exports = (grunt)->
   * * \config    <[ livescript:gruntjs copy:gruntjs reload ]>
     * \clean-all <[ clean:test clean:src clean:tmp ]>
     * \src-debug <[ livescript:src copy:src ]>
-    * \release   <[ livescript:src livescript:bin
+    * \release   <[ clean-all livescript:src livescript:bin
                     uglify:src uglify:bin test clean:test clean:tmp ]>
     * \test      <[ livescript:test copy:test copy:testTmp buster ]>
     * \default   <[ esteWatch ]>

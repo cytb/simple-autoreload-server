@@ -1,6 +1,6 @@
 var slice$ = [].slice;
 module.exports = function(grunt){
-  var files, esteFiles, banner, shebang, path, ref$, each, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs;
+  var files, esteFiles, banner, shebang, path, ref$, each, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs, convTmpToRel;
   files = {
     bin: ['bin/autoreload'],
     src: ['index', 'lib/client', 'lib/autoreload', 'lib/default-options', 'lib/utils'],
@@ -26,7 +26,7 @@ module.exports = function(grunt){
   shebang = '#!/usr/bin/env node\n';
   path = require('path');
   ref$ = require('prelude-ls'), each = ref$.each, flatten = ref$.flatten;
-  pathConv = function(files, decoKey, decoVal, conf){
+  pathConv = curry$(function(files, decoKey, decoVal, conf){
     var k, v, cur, ref$;
     for (k in files) {
       v = files[k];
@@ -40,7 +40,7 @@ module.exports = function(grunt){
     function fn$(it){
       return cur[decoKey(it)] = decoVal(it);
     }
-  };
+  });
   esteListener = function(file){
     var matcher, obj;
     matcher = function(it){
@@ -75,6 +75,17 @@ module.exports = function(grunt){
     tmpJs: conv(['tmp/js/', '.js']),
     srcLs: conv(['src/', '.ls'])
   }), relJs = ref$.relJs, tmpJs = ref$.tmpJs, srcLs = ref$.srcLs;
+  convTmpToRel = function(obj){
+    return pathConv({
+      src: files.src,
+      test: files.test,
+      gruntjs: files.gruntjs
+    }, relJs, tmpJs, pathConv({
+      bin: files.bin
+    }, function(it){
+      return it;
+    }, tmpJs, obj));
+  };
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     clean: {
@@ -95,10 +106,7 @@ module.exports = function(grunt){
         bare: true
       }
     }),
-    uglify: pathConv({
-      src: files.src,
-      bin: files.bin
-    }, relJs, tmpJs, {
+    uglify: convTmpToRel({
       options: {
         mangle: {
           except: ['module.exports']
@@ -115,12 +123,7 @@ module.exports = function(grunt){
         }
       }
     }),
-    copy: pathConv({
-      src: files.src,
-      bin: files.bin,
-      test: files.test,
-      gruntjs: files.gruntjs
-    }, relJs, tmpJs, {
+    copy: convTmpToRel({
       testTmp: {
         expand: true,
         cwd: 'src/test/data',
@@ -155,8 +158,21 @@ module.exports = function(grunt){
     return x$;
   });
   return each(partialize$.apply(grunt.registerTask, [grunt.registerTask.apply, [grunt, void 8], [1]]))(
-  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'copy:src']], ['release', ['livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'test', 'clean:test', 'clean:tmp']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']]]);
+  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'copy:src']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'test', 'clean:test', 'clean:tmp']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']]]);
 };
+function curry$(f, bound){
+  var context,
+  _curry = function(args) {
+    return f.length > 1 ? function(){
+      var params = args ? args.concat() : [];
+      context = bound ? context || this : this;
+      return params.push.apply(params, arguments) <
+          f.length && arguments.length ?
+        _curry.call(context, params) : f.apply(context, params);
+    } : f;
+  };
+  return _curry();
+}
 function partialize$(f, args, where){
   var context = this;
   return function(){
