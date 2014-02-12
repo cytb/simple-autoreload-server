@@ -4,7 +4,7 @@ module.exports = function(grunt){
   files = {
     bin: ['bin/autoreload'],
     src: ['index', 'lib/client', 'lib/autoreload', 'lib/default-options', 'lib/utils'],
-    test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/autoreload.test', 'test/tests/websocket.test'],
+    test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/autoreload.test', 'test/tests/command.test', 'test/tests/websocket.test'],
     testData: ['test/data'],
     gruntjs: ['Gruntfile']
   };
@@ -80,6 +80,12 @@ module.exports = function(grunt){
     x$.run(['esteWatch']);
     return x$;
   });
+  grunt.task.registerTask('chmod', 'Change permissions.', function(){
+    var fs;
+    fs = require('fs');
+    return each(partialize$.apply(fs, [fs.chmodSync, [void 8, '770'], [0]]))(
+    files.bin);
+  });
   ref$ = (conv = function(arg$){
     var pre, post;
     pre = arg$[0], post = arg$[1];
@@ -150,6 +156,13 @@ module.exports = function(grunt){
       }
     }),
     copy: convTmpToRel({
+      bin: {
+        options: {
+          process: (function(it){
+            return data.shebang + it;
+          })
+        }
+      },
       testTmp: {
         expand: true,
         cwd: 'src/test/data',
@@ -178,7 +191,7 @@ module.exports = function(grunt){
   }))(
   ['buster', 'livescript', 'este-watch', 'contrib-uglify', 'contrib-copy', 'contrib-clean', 'template']));
   return each(partialize$.apply(grunt.registerTask, [grunt.registerTask.apply, [grunt, void 8], [1]]))(
-  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'copy:src']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'template:readme', 'test', 'clean:test', 'clean:tmp']]]);
+  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'livescript:bin', 'copy:src', 'copy:bin']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'template:readme', 'chmod', 'test', 'clean:test', 'clean:tmp']]]);
 };
 function curry$(f, bound){
   var context,

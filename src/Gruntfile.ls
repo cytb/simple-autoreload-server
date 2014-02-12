@@ -18,6 +18,7 @@ module.exports = (grunt)->
       test/lib/test-utils
       test/helper/autoreload
       test/tests/autoreload.test
+      test/tests/command.test
       test/tests/websocket.test
     ]>
 
@@ -86,6 +87,13 @@ module.exports = (grunt)->
         # ..init [ \esteWatch ]
         ..run  [ \esteWatch ]
 
+
+  grunt.task.register-task do
+    \chmod, 'Change permissions.', ->
+      require! fs
+      files.bin
+      |> each (fs.chmod-sync _, '770')
+
   # name map function
   {rel-js,tmp-js,src-ls} = do
     conv = ([pre,post])->( (it)->("#{pre}#{it}#{post}") )
@@ -130,6 +138,7 @@ module.exports = (grunt)->
       bin: options: banner: (data.shebang + data.banner)
 
     copy: conv-tmp-to-rel do
+      bin: options: process: (data.shebang +)
       test-tmp: {
         +expand
         cwd:'src/test/data'
@@ -163,13 +172,13 @@ module.exports = (grunt)->
 
   * * \config    <[ livescript:gruntjs copy:gruntjs reload ]>
     * \clean-all <[ clean:test clean:src clean:tmp ]>
-    * \src-debug <[ livescript:src copy:src ]>
+    * \src-debug <[ livescript:src livescript:bin copy:src copy:bin ]>
     * \test      <[ livescript:test copy:test copy:testTmp buster ]>
     * \default   <[ esteWatch ]>
     * \release   <[ clean-all
                     livescript:src livescript:bin
                     uglify:src uglify:bin template:readme
-                    test clean:test clean:tmp ]>
+                    chmod test clean:test clean:tmp ]>
   |> each (grunt.registerTask.apply grunt, _)
 
 
