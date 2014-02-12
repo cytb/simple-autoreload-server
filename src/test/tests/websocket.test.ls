@@ -58,14 +58,14 @@ describe "websocket server", ->
   It "should send 'update' message.", (done)->
     @update @file
 
-    <~ delayed 50ms
+    <~ delayed 200ms
     @expect \update-1
     done!
 
-  It "should send 'update' message.", (done)->
+  It "should send 'update' message with force-reload).", (done)->
     @update "#{@file}-force-reload"
 
-    <~ delayed 50ms
+    <~ delayed 200ms
     @expect \update-2
     done!
 
