@@ -53,7 +53,16 @@ update = (file,data)->
   then store file, data
   else touch file
 
+deep-match = (obj,needle,matcher=(a,b)->a==b)->
+  for k, v in needle
+    matched = k of obj and if typeof v is object
+      then &callee obj[k], v
+      else matcher obj[k], v
+    return false unless matched
+  true
+
 export
   delayed, random-string,
   load, store, touch, update
+  deep-match
 

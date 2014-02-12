@@ -6,14 +6,19 @@ describe "websocket server", ->
 
     @messages = []
 
+    {deep-match} = require \../lib/test-utils
+
     @expect = (file,data)~>
-      e   = @tester.get-expect-json file
+      S = JSON~parse
+      e   = S( @tester.get-expect-json file )
       msg = "expects content of the file '#file'"
 
+
       if data?
-        assert.equals data, e, msg
+        assert.match S(data), e, msg
       else
-        assert (0 <= @messages.index-of e), msg
+        assert @messages.some ->
+          deep-match S(it), e
 
     new-tester = ~>
       @tester = new Tester {
@@ -29,9 +34,7 @@ describe "websocket server", ->
       inject: []
       force-reload: /force-reload$/
       onmessage: (msg,sock)~>
-        @messages.push <|
-        JSON.stringify <|
-        JSON.parse msg
+        @messages.push msg
     }
 
     @file = \websocket-echo.html
@@ -40,6 +43,7 @@ describe "websocket server", ->
 
     (@page) <~ @tester.get-web-phantom @file
     done!
+
   before ->
     @messages = []
 
@@ -54,14 +58,14 @@ describe "websocket server", ->
   It "should send 'update' message.", (done)->
     @update @file
 
-    <~ delayed 100ms
-    @expect \update1
+    <~ delayed 50ms
+    @expect \update-1
     done!
 
   It "should send 'update' message.", (done)->
     @update "#{@file}-force-reload"
 
-    <~ delayed 100ms
-    @expect \update2
+    <~ delayed 50ms
+    @expect \update-2
     done!
 
