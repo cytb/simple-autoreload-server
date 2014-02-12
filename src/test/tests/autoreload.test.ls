@@ -1,4 +1,6 @@
-describe "client ->", ->
+
+
+describe "on client", ->
 
   describe "response js", ->
 
@@ -10,7 +12,7 @@ describe "client ->", ->
       @css-file   = 'touch-test.css'
       @frame-file = 'touch-test.frame.html'
 
-      checker = new ReloadChecker {
+      @checker = new ReloadChecker {
         name: \client-code-injection
         port:12567
         # +log
@@ -19,10 +21,10 @@ describe "client ->", ->
         delay: 100ms
       }
 
-      <~ checker.init
-      @update = checker.tester~update-serv-file
-      @check  = checker~check
-      @fin    = checker.tester~finalize
+      <~ @checker.init
+      @update  = @checker.tester~update-serv-file
+      @check   = @checker~check
+      @fin     = @checker.tester~finalize
 
       @update @html-file, """
       <html>
@@ -58,6 +60,18 @@ describe "client ->", ->
 
       @check do
         loader:    ~> @update @html-file
+        evaluator: -> window.loadTime
+
+        done: ({pre,post})~>
+          refute.equals pre.result, post.result
+          done!
+
+    It "should let browser 'reload' 'html'
+        on 'touch' 'js' with 'force' option.", (done)->
+
+      @check do
+        server-option: {+force-reload}
+        loader:    ~> @update @js-file
         evaluator: -> window.loadTime
 
         done: ({pre,post})~>

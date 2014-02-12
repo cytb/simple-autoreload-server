@@ -18,8 +18,7 @@
     "connect-static-transform": ">=0.6.3",
     "colors": "*",
     "este-watch": ">=0.0.4",
-    "faye-websocket": ">=0.4.0",
-    "send": "*"
+    "faye-websocket": ">=0.4.0"
   },
   "devDependencies": {
     "grunt-buster": "~0.2.1",
@@ -30,7 +29,8 @@
     "prelude-ls": "~1.0.3",
     "buster": "~0.7.8",
     "node-phantom": "~0.2.5",
-    "grunt-este-watch": "~0.1.15"
+    "grunt-este-watch": "~0.1.15",
+    "grunt-template": "~0.2.3"
   },
   "peerDependencies": {
     "LiveScript": "1.2.0",

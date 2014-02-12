@@ -19,8 +19,18 @@ export {
   # verbose log
   -verbose
 
-  # The pattern of the file name to watch (regex)
+  # The pattern of the file name to watch (regex or array)
   watch: /^/
+
+  # This option is switched by type
+  #
+  #   [String/Regex/Array]
+  #     The pattern of the file name to which is forced to reload
+  #
+  #   [Boolean]
+  #     if true, the page is always reload on any event
+  #
+  force-reload: false
 
   # The time to delay before broadcasting the 'update' packet.
   broadcast-delay: 0ms

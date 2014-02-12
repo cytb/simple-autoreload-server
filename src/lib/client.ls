@@ -141,7 +141,7 @@
         new-one = dom-move-to-new elem
         set = (new-one.set-attribute attr, _)
 
-        do-common-setter "re-insert", path, set
+        do-common-setter "reinsert", path, set
         elem.parent-node
           ..insert-before new-one, elem
           ..remove-child  elem

@@ -73,7 +73,7 @@ require! {
   open-data: (...names)->
     @do-file-func (@data-path names), \open-data, load
 
-  start-server: (opt,done=->)->
+  start-server: (opt={},done=->)->
     @logger \start-server
     @stop-server!
 
@@ -152,10 +152,9 @@ require! {
     @set-default-option def-opt
 
   init: (done)->
-    @tester = new Tester @tester-option, ~>
-      @tester.start-server {}, done
+    @tester = new Tester @tester-option, done
 
-  set-default-option: (@default-option={delay:50ms})->
+  set-default-option: (@default-option={server-option:{},delay:50ms})->
 
   set-option: (option-arg)->
     @option = new-copy do
@@ -164,6 +163,9 @@ require! {
   check: (option={})->
     @set-option option
 
+    <~ @tester.start-server @option.server-option
+
+    <~ delayed @option.delay
     loaded-pre = @option.loader!
     (page) <~ @tester.get-web-phantom @option.page-file
 
@@ -176,6 +178,8 @@ require! {
     <~ delayed @option.delay
     (err,result-post) <~ page.evaluate @option.evaluator
     if err then throw that
+
+    @tester.stop-server!
 
     @option.done {
       pre:

@@ -1,0 +1,64 @@
+<%= pkg.name %>
+========================
+
+[<%= pkg.name %>] is Node.js based Simple Live/Auto Reloading Web Server
+  - Reload statically on update the html files
+  - Refresh dynamically on update the files: css, js, png, and etc.
+  - Required no browser extensions but need WebSocket.
+
+Command Line Usage
+----
+```sh
+autreload [root-dir [port]]
+```
+#### Example
+
+```sh
+autreload ./site-files 8008
+```
+
+Module Usage (Example)
+----
+```
+var launcher = require('<%= pkg.name %>');
+
+var server = launcher({
+  port: 8008,
+  root: './',
+  listDirectory: true,
+  watch: /.(png|js|html)$/i
+  forceReload: [/.json$/i, "static.swf"]
+});
+```
+
+Options
+----
+See 'src/lib/default-options.ls' for the option details.
+
+Version
+----
+v<%= pkg.version %>
+
+Installation
+--------------
+You can install this package via 'npm'.
+
+License
+----
+<%
+  pkg.licenses.forEach(function(l){
+    %>[<%= l.type %>]
+<%
+  });
+%>
+
+[<%= pkg.name %>]:<%= pkg.homepage %>
+<%
+  pkg.licenses.forEach(function(l){
+    %>[<%= l.type %>]:<%= l.url %>
+<%
+  });
+%>
+
+
+

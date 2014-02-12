@@ -1,6 +1,6 @@
 var slice$ = [].slice;
 module.exports = function(grunt){
-  var files, esteFiles, banner, shebang, path, ref$, each, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs, convTmpToRel;
+  var files, esteFiles, data, path, ref$, each, map, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs, convTmpToRel;
   files = {
     bin: ['bin/autoreload'],
     src: ['index', 'lib/client', 'lib/autoreload', 'lib/default-options', 'lib/utils'],
@@ -9,6 +9,10 @@ module.exports = function(grunt){
     gruntjs: ['Gruntfile']
   };
   esteFiles = {
+    readme: {
+      files: ['src/doc/README.tmpl'],
+      tasks: ['template:readme']
+    },
     gruntjs: {
       files: ['src/Gruntfile.ls'],
       tasks: ['config']
@@ -22,10 +26,13 @@ module.exports = function(grunt){
       tasks: ['test']
     }
   };
-  banner = '/*\n * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n * <<%= pkg.homepage %>>\n *\n * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>\n *\n * Licensed under the <%= pkg.licenses[0].type %> License.\n * <<%= pkg.licenses[0].url %>>\n */\n';
-  shebang = '#!/usr/bin/env node\n';
+  data = {
+    banner: grunt.file.read('src/doc/banner.tmpl'),
+    pkg: grunt.file.readJSON('package.json'),
+    shebang: '#!/usr/bin/env node\n'
+  };
   path = require('path');
-  ref$ = require('prelude-ls'), each = ref$.each, flatten = ref$.flatten;
+  ref$ = require('prelude-ls'), each = ref$.each, map = ref$.map, flatten = ref$.flatten;
   pathConv = curry$(function(files, decoKey, decoVal, conf){
     var k, v, cur, ref$;
     for (k in files) {
@@ -64,6 +71,15 @@ module.exports = function(grunt){
       return results$;
     }()))));
   };
+  grunt.task.registerTask('reload', 'Reload the Gruntfile and restart Gruntjs', function(){
+    var gruntfile, x$;
+    gruntfile = path.resolve('Gruntfile.js');
+    delete require.cache[gruntfile];
+    x$ = grunt.task;
+    x$.clearQueue();
+    x$.run(['esteWatch']);
+    return x$;
+  });
   ref$ = (conv = function(arg$){
     var pre, post;
     pre = arg$[0], post = arg$[1];
@@ -87,7 +103,7 @@ module.exports = function(grunt){
     }, tmpJs, obj));
   };
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: data.pkg,
     clean: {
       tmp: ['tmp/**/*', 'tmp'],
       src: ['lib/**/*', 'lib', 'bin/**/*', 'bin', 'index.js'],
@@ -95,6 +111,16 @@ module.exports = function(grunt){
     },
     buster: {
       test: {}
+    },
+    template: {
+      readme: {
+        files: {
+          'README.md': 'src/doc/README.tmpl'
+        },
+        options: {
+          data: data
+        }
+      }
     },
     livescript: pathConv({
       bin: files.bin,
@@ -114,12 +140,12 @@ module.exports = function(grunt){
       },
       src: {
         options: {
-          banner: banner
+          banner: data.banner
         }
       },
       bin: {
         options: {
-          banner: shebang + banner
+          banner: data.shebang + data.banner
         }
       }
     }),
@@ -139,7 +165,7 @@ module.exports = function(grunt){
         },
         ignoredFiles: {
           indexOf: function(it){
-            return (!/\.(ls|js)$/ig.test(it) && 1) || -1;
+            return (!/\.(ls|js|tmpl)$/ig.test(it) && 1) || -1;
           }
         }
       },
@@ -147,18 +173,12 @@ module.exports = function(grunt){
     }
   });
   each(partialize$.apply(grunt, [grunt.loadNpmTasks, [void 8], [0]]))(
-  ['grunt-buster', 'grunt-livescript', 'grunt-este-watch', 'grunt-contrib-uglify', 'grunt-contrib-copy', 'grunt-contrib-clean']);
-  grunt.task.registerTask('reload', 'Reload the Gruntfile and restart Gruntjs', function(){
-    var gruntfile, x$;
-    gruntfile = path.resolve('Gruntfile.js');
-    delete require.cache[gruntfile];
-    x$ = grunt.task;
-    x$.clearQueue();
-    x$.run(['esteWatch']);
-    return x$;
-  });
+  map((function(it){
+    return 'grunt-' + it;
+  }))(
+  ['buster', 'livescript', 'este-watch', 'contrib-uglify', 'contrib-copy', 'contrib-clean', 'template']));
   return each(partialize$.apply(grunt.registerTask, [grunt.registerTask.apply, [grunt, void 8], [1]]))(
-  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'copy:src']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'test', 'clean:test', 'clean:tmp']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']]]);
+  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'copy:src']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'template:readme', 'test', 'clean:test', 'clean:tmp']]]);
 };
 function curry$(f, bound){
   var context,

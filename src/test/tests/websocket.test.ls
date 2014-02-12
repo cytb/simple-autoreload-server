@@ -27,6 +27,7 @@ describe "websocket server", ->
       # +verbose
       port:12565
       inject: []
+      force-reload: /force-reload$/
       onmessage: (msg,sock)~>
         @messages.push <|
         JSON.stringify <|
@@ -53,7 +54,14 @@ describe "websocket server", ->
   It "should send 'update' message.", (done)->
     @update @file
 
-    <~ delayed 200ms
-    @expect \update
+    <~ delayed 100ms
+    @expect \update1
+    done!
+
+  It "should send 'update' message.", (done)->
+    @update "#{@file}-force-reload"
+
+    <~ delayed 100ms
+    @expect \update2
     done!
 

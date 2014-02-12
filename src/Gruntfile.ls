@@ -30,37 +30,33 @@ module.exports = (grunt)->
     ]>
 
   este-files =
+    readme:
+      files: <[ src/doc/README.tmpl ]>
+      tasks: <[ template:readme ]>
+
     gruntjs:
       files: <[ src/Gruntfile.ls ]>
       tasks: <[ config ]>
+
     ls:
       files: <[ src/index.ls src/lib/*.ls src/bin/*.ls ]>
       tasks: <[ src-debug test ]>
+
     test:
       files: <[ src/test/**/*.ls ]>
       tasks: <[ test ]>
 
-  banner = '''
-    /*
-     * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>
-     * <<%= pkg.homepage %>>
-     *
-     * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>
-     *
-     * Licensed under the <%= pkg.licenses[0].type %> License.
-     * <<%= pkg.licenses[0].url %>>
-     */
+  data =
+    banner: grunt.file.read \src/doc/banner.tmpl
+    pkg:    grunt.file.readJSON \package.json
+    shebang: '''
+      #!/usr/bin/env node
 
-  '''
+    '''
 
-  shebang = '''
-    #!/usr/bin/env node
-
-  '''
-
+  # utils
   require! path
-
-  {each,flatten} = require \prelude-ls
+  {each,map,flatten} = require \prelude-ls
 
   # (files, out, src, conf) -> conf-obj
   path-conv = (files,deco-key,deco-val,conf)-->
@@ -69,6 +65,7 @@ module.exports = (grunt)->
       v |> each (-> cur[ deco-key it ] = deco-val it)
     conf
 
+  # watcher
   este-listener = (file)->
     matcher = ->
       grunt.file.match it.files, file .length > 0
@@ -78,6 +75,18 @@ module.exports = (grunt)->
     |> (.map (.tasks))
     |> flatten
 
+  # following code is needed to reload the Gruntfile.js
+  grunt.task.register-task do
+    \reload, 'Reload the Gruntfile and restart Gruntjs', ->
+      gruntfile = path.resolve 'Gruntfile.js'
+      delete require.cache[gruntfile]
+
+      grunt.task
+        ..clear-queue!
+        # ..init [ \esteWatch ]
+        ..run  [ \esteWatch ]
+
+  # name map function
   {rel-js,tmp-js,src-ls} = do
     conv = ([pre,post])->( (it)->("#{pre}#{it}#{post}") )
     {
@@ -90,9 +99,11 @@ module.exports = (grunt)->
     path-conv files{ src, test, gruntjs }, rel-js, tmp-js, do
       path-conv files{ bin }, (->it), tmp-js, obj
 
+  #
+  # Grunt config
+  #
   grunt.init-config do
-
-    pkg: grunt.file.readJSON \package.json
+    pkg: data.pkg
 
     clean:
       tmp:  <[ tmp/**/*  tmp ]>
@@ -101,6 +112,10 @@ module.exports = (grunt)->
 
     buster:
       test: {}
+
+    template: readme:
+      files: 'README.md': 'src/doc/README.tmpl'
+      options: data: data
 
     livescript: path-conv do
       files{ bin, src, test, gruntjs }, tmp-js, src-ls,
@@ -111,8 +126,8 @@ module.exports = (grunt)->
     uglify: conv-tmp-to-rel do
       options:
         mangle: except: <[ module.exports ]>
-      src: options: banner:  banner
-      bin: options: banner: (shebang + banner)
+      src: options: banner: data.banner
+      bin: options: banner: (data.shebang + data.banner)
 
     copy: conv-tmp-to-rel do
       test-tmp: {
@@ -128,39 +143,34 @@ module.exports = (grunt)->
         livereload: {-enabled}
         ignored-files:
           index-of: ->
-            (it isnt /\.(ls|js)$/ig and 1) or -1
+            (it isnt /\.(ls|js|tmpl)$/ig and 1) or -1
 
       "*": este-listener
 
   <[
-    grunt-buster
-    grunt-livescript
-    grunt-este-watch
-    grunt-contrib-uglify
-    grunt-contrib-copy
-    grunt-contrib-clean
+    buster
+    livescript
+    este-watch
+    contrib-uglify
+    contrib-copy
+    contrib-clean
+    template
   ]>
+  |> map ('grunt-' +)
   |> each (grunt.loadNpmTasks _)
-
-  # following code is needed to reload the Gruntfile.js
-  grunt.task.register-task do
-    \reload, 'Reload the Gruntfile and restart Gruntjs', ->
-      gruntfile = path.resolve 'Gruntfile.js'
-      delete require.cache[gruntfile]
-
-      grunt.task
-        ..clear-queue!
-        # ..init [ \esteWatch ]
-        ..run  [ \esteWatch ]
 
   # grunt.loadTasks('./tasks');
 
   * * \config    <[ livescript:gruntjs copy:gruntjs reload ]>
     * \clean-all <[ clean:test clean:src clean:tmp ]>
     * \src-debug <[ livescript:src copy:src ]>
-    * \release   <[ clean-all livescript:src livescript:bin
-                    uglify:src uglify:bin test clean:test clean:tmp ]>
     * \test      <[ livescript:test copy:test copy:testTmp buster ]>
     * \default   <[ esteWatch ]>
+    * \release   <[ clean-all
+                    livescript:src livescript:bin
+                    uglify:src uglify:bin template:readme
+                    test clean:test clean:tmp ]>
   |> each (grunt.registerTask.apply grunt, _)
+
+
 
