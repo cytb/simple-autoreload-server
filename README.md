@@ -37,7 +37,7 @@ See 'src/lib/default-options.ls' for the details of options.
 
 Version
 ----
-v0.0.4
+v0.0.5
 
 Installation
 --------------
