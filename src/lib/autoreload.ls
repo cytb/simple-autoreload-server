@@ -96,13 +96,14 @@ class SimpleAutoreloadServer
 
   # Create este-watch
   create-watcher: ->
-    root = @options.root
-    self = this
+    root     = @options.root
+    abs-root = path.resolve @options.root
+    self     = this
 
     do-reload = @@@create-reload-matcher @options.force-reload
 
     # Watch
-    este-obj = este-watch [root], (ev)->
+    este-obj = este-watch [abs-root], (ev)->
       return unless flatten [ self.options.watch ] .some ->
         typeof! it is \RegExp and it.test ev.filepath
 
@@ -137,7 +138,7 @@ class SimpleAutoreloadServer
 
   # Creating httpd-server
   create-server: ->
-    root = @options.root
+    root = path.resolve @options.root
 
     server =
       # head of middleware conf
