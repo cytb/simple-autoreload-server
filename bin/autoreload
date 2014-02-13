@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * simple-autoreload-server v0.0.5 - 2014-02-13
+ * simple-autoreload-server v0.0.6 - 2014-02-13
  * <https://github.com/cytb/simple-autoreload-server>
  *
  * Copyright (c) 2014 cytb

@@ -26,8 +26,8 @@ var server = launcher({
   port: 8008,
   root: './',
   listDirectory: true,
-  watch: /.(png|js|html)$/i
-  forceReload: [/.json$/i, "static.swf"]
+  watch: /\.(png|js|html|json|swf)$/i,
+  forceReload: [/\.json$/i, "static.swf"]
 });
 ```
 
@@ -37,7 +37,7 @@ See 'src/lib/default-options.ls' for the details of options.
 
 Version
 ----
-v0.0.5
+v0.0.6
 
 Installation
 --------------
