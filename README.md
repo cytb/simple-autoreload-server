@@ -1,20 +1,20 @@
 simple-autoreload-server
 ========================
 
-[simple-autoreload-server] is Node.js based Simple Live/Auto Reloading Web Server
+[simple-autoreload-server] is the Node.js based Simple Live/Auto Reloading Web Server.
   - Reload statically on update the html files
-  - Refresh dynamically on update the files: css, js, png, and etc.
-  - Required no browser extensions but need WebSocket.
+  - Refresh dynamically on update the files like css, js, png, and etc.
+  - No browser extensions (but the WebSocket) needed. 
 
 Command Line Usage
 ----
 ```sh
-autreload [root-dir [port]]
+autoreload [root-dir [port]]
 ```
 #### Example
 
 ```sh
-autreload ./site-files 8008
+autoreload ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -31,13 +31,13 @@ var server = launcher({
 });
 ```
 
-Options
-----
-See 'src/lib/default-options.ls' for the option details.
+#### Option
+
+See 'src/lib/default-options.ls' for the details of options.
 
 Version
 ----
-v0.0.2
+v0.0.4
 
 Installation
 --------------
@@ -45,11 +45,11 @@ You can install this package via 'npm'.
 
 License
 ----
-[MIT]
+[MIT License]
 
 
 [simple-autoreload-server]:https://github.com/cytb/simple-autoreload-server
-[MIT]:http://www.opensource.org/licenses/mit-license.php
+[MIT License]:http://www.opensource.org/licenses/mit-license.php
 
 
 

@@ -14,7 +14,7 @@ export {
   root: process.cwd!
 
   # use httpd directory listing or not
-  -list-directory
+  +list-directory
 
   # verbose log
   -verbose
