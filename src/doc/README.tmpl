@@ -1,20 +1,20 @@
 <%= pkg.name %>
 ========================
 
-[<%= pkg.name %>] is Node.js based Simple Live/Auto Reloading Web Server
+[<%= pkg.name %>] is the Node.js based Simple Live/Auto Reloading Web Server.
   - Reload statically on update the html files
-  - Refresh dynamically on update the files: css, js, png, and etc.
-  - Required no browser extensions but need WebSocket.
+  - Refresh dynamically on update the files like css, js, png, and etc.
+  - No browser extensions but the WebSocket needed.
 
 Command Line Usage
 ----
 ```sh
-autreload [root-dir [port]]
+autoreload [root-dir [port]]
 ```
 #### Example
 
 ```sh
-autreload ./site-files 8008
+autoreload ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -31,9 +31,9 @@ var server = launcher({
 });
 ```
 
-Options
-----
-See 'src/lib/default-options.ls' for the option details.
+#### Option
+
+See 'src/lib/default-options.ls' for the details of options.
 
 Version
 ----
