@@ -1,6 +1,6 @@
 
 /*
- * simple-autoreload-server v0.0.7 - 2014-02-13
+ * simple-autoreload-server v0.0.7 - 2014-02-17
  * <https://github.com/cytb/simple-autoreload-server>
  *
  * Copyright (c) 2014 cytb

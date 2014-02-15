@@ -9,7 +9,7 @@ module.exports = (grunt)->
       index
       lib/client
       lib/autoreload
-      lib/default-options
+      lib/options
       lib/utils
     ]>
 
@@ -92,7 +92,7 @@ module.exports = (grunt)->
     \chmod, 'Change permissions.', ->
       require! fs
       files.bin
-      |> each (fs.chmod-sync _, '770')
+      |> each (fs.chmod-sync _, '775')
 
   # name map function
   {rel-js,tmp-js,src-ls} = do

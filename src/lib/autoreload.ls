@@ -8,8 +8,12 @@ require! {
   path
   static-transform: \connect-static-transform
   \./utils
-  def-options: \./default-options
+  default-all-options: \./options
 }
+
+
+def-options = default-all-options.default-module-options
+
 
 # utils
 {flatten,regex-clone,new-copy,get-logger,create-connect-stack} = utils
@@ -26,6 +30,7 @@ class SimpleAutoreloadServer
     @normal-log = get-logger @~log-prefix
     @verb-log   = (->)
     @set-options options
+    @running = false
 
   set-options: (options-arg={})->
     options = new-copy options-arg, def-options
@@ -53,10 +58,12 @@ class SimpleAutoreloadServer
   stop: ->
     @watcher?.dispose!
     @server?.close!
+    @running = false
 
     @normal-log "Server stopped."
 
   start: ->
+    @stop! if @running
     @watcher.start!
     @server
       ..listen @options.port
@@ -65,6 +72,7 @@ class SimpleAutoreloadServer
     root-path = @options.root.to-string!green
     port      = @options.port.to-string!green
 
+    @running = true
     @normal-log "Server started on :#port at #root-path"
 
   init: ->

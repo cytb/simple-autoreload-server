@@ -1,4 +1,7 @@
 
+require! {path,fs}
+
+
 # Utils
 
 flatten = ([...array])->
@@ -40,7 +43,12 @@ create-connect-stack = ([...middle-wares])->
       | mw! => that req, res, &callee
       | _   => next!
 
+load = (base,file,enc='UTF-8')->
+  p = path.resolve base, file
+  fs.read-file-sync p, enc
+
 export {
   flatten, regex-clone, deep-copy, new-copy,
   get-logger, create-connect-stack
+  load
 }

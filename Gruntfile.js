@@ -3,7 +3,7 @@ module.exports = function(grunt){
   var files, esteFiles, data, path, ref$, each, map, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs, convTmpToRel;
   files = {
     bin: ['bin/autoreload'],
-    src: ['index', 'lib/client', 'lib/autoreload', 'lib/default-options', 'lib/utils'],
+    src: ['index', 'lib/client', 'lib/autoreload', 'lib/options', 'lib/utils'],
     test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/autoreload.test', 'test/tests/command.test', 'test/tests/websocket.test'],
     testData: ['test/data'],
     gruntjs: ['Gruntfile']
