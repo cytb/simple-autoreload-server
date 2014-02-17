@@ -9,12 +9,78 @@ simple-autoreload-server
 Command Line Usage
 ----
 ```sh
-autoreload [root-dir [port]]
+autoreload [optoins] [root-dir] [port]
 ```
+
+
+Command Line Options
+----
+
+--root | -d <param>
+  set base directory for publish.
+  default: .
+
+--port | -p <param>
+  set port to listen (http).
+  default: 8080
+
+--list-directory | -l
+  enable directory listing.
+  default: true
+
+--watch | -w <param>
+  regex pattern of file to watch.
+  default: /^/
+
+--watch-delay <param>
+  time to delay before fireing watch event (in ms).
+  default: 1
+
+--verbose | -v
+  enable verbose log.
+  default: false
+
+--force-reload | -r <param>
+  regex pattern for file forced to reload page.
+  
+
+--broadcast-delay <param>
+  time to delay before broadcasting file update event (in ms).
+  default: 0
+
+--no-default-script
+  disable injection of default client script.
+  default: false
+
+--inject-file | -I <param>
+  set path to additional file to be injected.
+  
+
+--inject-method | -M <param>
+  specify the method [prepend or append]
+  default: p
+
+--inject-match-text | -T <param>
+  specify the pattern where to inject
+  
+
+--inject-match-file | -F <param>
+  specify the pattern for file to inject
+  
+
+--version | -V
+  show version
+  
+
+--help | -h
+  show help
+  
+
+
 #### Example
 
 ```sh
-autoreload ./site-files 8008
+autoreload -w "\\.(html|css|js)" ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -33,15 +99,20 @@ var server = launcher({
 
 #### Option
 
-See 'src/lib/default-options.ls' for details of the options.
+See 'src/lib/options.ls' for details of options.
+
 
 Version
 ----
-v0.0.7
+0.0.7
 
 Installation
 --------------
-You can install this package via 'npm'.
+install this package via 'npm'.
+
+```sh
+npm install simple-autoreload-server
+```
 
 License
 ----

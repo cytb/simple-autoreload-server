@@ -9,12 +9,28 @@
 Command Line Usage
 ----
 ```sh
-autoreload [root-dir [port]]
+autoreload [optoins] [root-dir] [port]
 ```
+
+
+Command Line Options
+----
+<%
+  options
+  .generateCommandlineHelp()
+  .forEach(function(opt){
+%>
+<%= opt[0] %>
+  <%= opt[1] %>
+  <%= opt[2] %>
+<%
+  });
+%>
+
 #### Example
 
 ```sh
-autoreload ./site-files 8008
+autoreload -w "\\.(html|css|js)" ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -33,15 +49,20 @@ var server = launcher({
 
 #### Option
 
-See 'src/lib/default-options.ls' for details of the options.
+See 'src/lib/options.ls' for details of options.
+
 
 Version
 ----
-v<%= pkg.version %>
+<%= pkg.version %>
 
 Installation
 --------------
-You can install this package via 'npm'.
+install this package via 'npm'.
+
+```sh
+npm install simple-autoreload-server
+```
 
 License
 ----

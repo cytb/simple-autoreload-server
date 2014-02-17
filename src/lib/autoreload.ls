@@ -4,10 +4,10 @@ require! {
   colors
   WebSocket: \faye-websocket
   http
-  \este-watch
   path
   static-transform: \connect-static-transform
   \./utils
+  \./watch
   default-all-options: \./options
 }
 
@@ -25,10 +25,20 @@ module.exports = (options)->
 
 # Main class
 class SimpleAutoreloadServer
+
+  get-tagged-logger = (color)->
+    (tag,...texts)->
+        @normal-log.apply @, ( [tag.to-string![color]] ++ texts )
+
   (options={})->
     @living-sockets = []
-    @normal-log = get-logger @~log-prefix
-    @verb-log   = (->)
+
+    @normal-log = get-logger ~>
+      @@log-prefix "localhost:#{@options.port}"
+
+    @verb-log  = (->)
+
+    @error-log = get-tagged-logger 'red'
     @set-options options
     @running = false
 
@@ -41,22 +51,13 @@ class SimpleAutoreloadServer
 
     # set logger state
     if options.verbose
-      @verb-log = (tag,...texts)~>
-        @normal-log.apply @, ( [tag.to-string!green] ++ texts )
-
-      connect.logger.token \prefix, ~>
-        @log-prefix! + " httpd".green
+      @verb-log = get-tagged-logger 'green'
 
     @options = options
 
-  log-prefix: ->
-    pid  = process.pid
-    root = @options.root
-    port = @options.port
-    "[autoreload \##pid @#root :#port]".cyan
 
   stop: ->
-    @watcher?.dispose!
+    @watcher?.stop!
     @server?.close!
     @running = false
 
@@ -69,8 +70,8 @@ class SimpleAutoreloadServer
       ..listen @options.port
       ..add-listener \upgrade, @create-upgrade-listerner!
 
-    root-path = @options.root.to-string!green
     port      = @options.port.to-string!green
+    root-path = @options.root.to-string!green
 
     @running = true
     @normal-log "Server started on :#port at #root-path"
@@ -102,7 +103,7 @@ class SimpleAutoreloadServer
         @living-sockets .= filter (isnt websock)
       |> @living-sockets.push
 
-  # Create este-watch
+  # Create watch
   create-watcher: ->
     root     = @options.root
     abs-root = path.resolve @options.root
@@ -111,28 +112,36 @@ class SimpleAutoreloadServer
     do-reload = @@@create-reload-matcher @options.force-reload
 
     # Watch
-    este-obj = este-watch [abs-root], (ev)->
-      return unless flatten [ self.options.watch ] .some ->
-        typeof! it is \RegExp and it.test ev.filepath
+    watch-obj = watch do
+      root:root
+      delay: @options.watch-delay
+      on-change:(ev,source-path)->
+        if ev is \error
+          self.error-log "watch", "error".red, source-path
+          return
 
-      self.verb-log "watch", "event on", ev.filepath
+        return unless flatten [ self.options.watch ] .some ->
+          typeof! it is \RegExp and it.test source-path
 
-      file-path = (do
-        try
-          http-file-path = path.relative root, ev.filepath
+        self.verb-log "watch", "event on", source-path
 
-          # returning '' if it is out of root-dir
-          http-file-path isnt /^\// and "/#http-file-path" or ''
-        catch
-           ''
-      )
+        http-path = (do
+          try
+            relative-path = path.relative root, source-path
 
-      self.broadcast do
-        type:\update
-        path:file-path
-        force-reload: do-reload file-path
+            # returning '' if it is outer
+            relative-path isnt /^\// and "/#relative-path" or ''
+          catch
+             ''
+        )
+
+        self.broadcast do
+          type:\update
+          path:http-path
+          force-reload: do-reload http-path
 
     # fix Este to catch the error
+    /*
     dir-change = este-obj.on-dir-change
     este-obj
       ..on-dir-change = ->
@@ -142,7 +151,8 @@ class SimpleAutoreloadServer
         catch e
           self.normal-log 'Exception'.red, e
 
-    este-obj
+    */
+    watch-obj
 
   # Creating httpd-server
   create-server: ->
@@ -154,7 +164,7 @@ class SimpleAutoreloadServer
 
       # logger 
         @options.verbose and connect.logger ([
-            ":prefix :remote-addr :method"
+            ":ar-prefix :remote-addr :method"
             '":url HTTP/:http-version"'
             ":status :referrer :user-agent"
         ] * ' ')
@@ -190,6 +200,11 @@ class SimpleAutoreloadServer
     @verb-log "broadcast",
       "to #{websockets.length} sockets :", json-data
     websockets.for-each (->it?.send json-data)
+
+  @log-prefix = (host)->
+    pid  = process.pid
+    # root = @options.root
+    "[autoreload \##pid #host]".cyan
 
   @apply-rec = (obj,func)->
     match typeof! obj
@@ -237,4 +252,8 @@ class SimpleAutoreloadServer
     # matcher
     (file-path)-> array.some (->it file-path)
 
+
+connect.logger.token \ar-prefix, (r)~>
+  SimpleAutoreloadServer.log-prefix do
+    r.headers.host + " httpd".green
 

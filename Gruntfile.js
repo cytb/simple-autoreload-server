@@ -3,7 +3,7 @@ module.exports = function(grunt){
   var files, esteFiles, data, path, ref$, each, map, flatten, pathConv, esteListener, conv, relJs, tmpJs, srcLs, convTmpToRel;
   files = {
     bin: ['bin/autoreload'],
-    src: ['index', 'lib/client', 'lib/autoreload', 'lib/options', 'lib/utils'],
+    src: ['index', 'lib/client', 'lib/autoreload', 'lib/options', 'lib/utils', 'lib/watch'],
     test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/autoreload.test', 'test/tests/command.test', 'test/tests/websocket.test'],
     testData: ['test/data'],
     gruntjs: ['Gruntfile']
@@ -29,7 +29,8 @@ module.exports = function(grunt){
   data = {
     banner: grunt.file.read('src/doc/banner.tmpl'),
     pkg: grunt.file.readJSON('package.json'),
-    shebang: '#!/usr/bin/env node\n'
+    shebang: '#!/usr/bin/env node\n',
+    options: require('./lib/options')
   };
   path = require('path');
   ref$ = require('prelude-ls'), each = ref$.each, map = ref$.map, flatten = ref$.flatten;
@@ -83,7 +84,7 @@ module.exports = function(grunt){
   grunt.task.registerTask('chmod', 'Change permissions.', function(){
     var fs;
     fs = require('fs');
-    return each(partialize$.apply(fs, [fs.chmodSync, [void 8, '770'], [0]]))(
+    return each(partialize$.apply(fs, [fs.chmodSync, [void 8, '775'], [0]]))(
     files.bin);
   });
   ref$ = (conv = function(arg$){

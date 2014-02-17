@@ -11,6 +11,7 @@ module.exports = (grunt)->
       lib/autoreload
       lib/options
       lib/utils
+      lib/watch
     ]>
 
     test: <[
@@ -54,6 +55,7 @@ module.exports = (grunt)->
       #!/usr/bin/env node
 
     '''
+    options: require \./lib/options
 
   # utils
   require! path

@@ -6,6 +6,34 @@ default-injection-code =
   utils.load __dirname, \./client.js
 
 export
+  generate-minimist-opt: (opt=@commandline-options)->
+    output = {boolean:[],string:[],alias:{},default:{}}
+
+    for name, {type=null,short=[],def=null} of opt
+      key = type is String and \string or \boolean
+      output[key] ++= name
+
+      for sname in ([] ++ short)
+        output.alias[sname] = [name]
+
+      if def?
+        output.default[name] = def
+
+    output
+
+  generate-commandline-help:->
+    for name, opt of @commandline-options
+
+      nshort = opt.short?         and "-#{opt.short}" or []
+      param  = opt.type is String and '<param>'       or []
+
+      optnames = [ (['--' + name] ++ nshort) * ' | ' ]
+      spec = (optnames ++ param) * ' '
+
+      [ spec, opt.desc ] ++ (
+        if opt.def? then "default: #{opt.def}" else []
+      )
+
   commandline-options:
     root:
       short: \d
@@ -30,6 +58,11 @@ export
       desc:  'regex pattern of file to watch.'
       def: /^/
 
+    'watch-delay':
+      type:  String
+      desc:  'time to delay before fireing watch event (in ms).'
+      def: 1ms
+
     verbose:
       short: \v
       desc:  'enable verbose log.'
@@ -42,9 +75,9 @@ export
       def: null
 
     'broadcast-delay':
-      short: \t
-      desc:  'time to delay before broadcasting file update event (in ms).'
-      def: 0
+      type: String
+      desc: 'time to delay before broadcasting file update event (in ms).'
+      def: 0ms
 
     'no-default-script':
       desc:  'disable injection of default client script.'
@@ -90,16 +123,19 @@ export
     +list-directory
     -verbose
 
-    # The pattern of the file name to watch (regex or array)
+    # delay time before fireing watch event (num in ms)
+    watch-delay: 1ms
+
+    # Pattern of file name(s) to watch (regex or array)
     watch: /^/
 
-    # This option is switched by type
+    # This function will be switched by option type
     #
     #   [String/Regex/Array]
-    #     The pattern of the file name to which is forced to reload
+    #     Pattern of the file name to which is forced to reload
     #
     #   [Boolean]
-    #     if true, the page is always reload on any event
+    #     Always reload the 'page' on any event if true 
     #
     force-reload: false
 

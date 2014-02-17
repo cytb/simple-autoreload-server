@@ -30,6 +30,20 @@ get-logger = (log-prefix)->
   (...texts)-> console.log do
     ([log-prefix!] ++ (flatten texts)) * ' '
 
+readdir-rec = (dirpath)->
+  self = &callee
+  try
+    unless fs.lstat-sync dirpath .is-directory!
+      return dirpath
+
+    fs.readdir-sync dirpath
+    |> (.map (path.join dirpath,_))
+    |> (.map self)
+    |> ([dirpath] ++)
+
+  catch
+    return dirpath
+
 #
 # Connect Middle-ware API
 #   Ref: https://gist.github.com/danielbeardsley/1041099
@@ -49,6 +63,7 @@ load = (base,file,enc='UTF-8')->
 
 export {
   flatten, regex-clone, deep-copy, new-copy,
-  get-logger, create-connect-stack
-  load
+  get-logger,
+  load, readdir-rec,
+  create-connect-stack
 }

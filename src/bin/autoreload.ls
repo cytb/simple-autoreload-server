@@ -6,44 +6,23 @@ require! {
   \../lib/autoreload
 }
 
-cmd-opt-to-minimist-opt = (opt={})->
-  output = {boolean:[],string:[],alias:{},default:{}}
-
-  for name, {type=null,short=[],def=null} of opt
-    key = type is String and \string or \boolean
-    output[key] ++= name
-
-    for sname in ([] ++ short)
-      output.alias[sname] = [name]
-
-    if def?
-      output.default[name] = def
-
-  output
-
 # show usage
-usage = (cmd-opts)->
+usage = ->
 
   prog = 'autoreload'
 
   console.log 'Usage:'
   console.log ' ',prog,'[options] [directory] [port]'
   console.log ''
-
   console.log 'Options:'
 
-  for name, opt of cmd-opts
+  arr = options.generate-commandline-help!
 
-    nshort = opt.short?         and "-#{opt.short}" or []
-    param  = opt.type is String and '<param>'       or []
-
-    [ (['--' + name] ++ nshort) * ' | ' ] ++ param
-    |> (* ' ')
-    |> (console.log '  ', _)
-
-    console.log "    ", opt.desc
-    console.log "    ", "default: #{opt.def}" if opt.def?
-    console.log ""
+  for [spec,desc,def] in arr
+    console.log '  ',   spec
+    console.log '    ', desc
+    console.log '    ', def if def?
+    console.log '',
 
 # show version
 version = ->
@@ -54,19 +33,18 @@ version = ->
     #{json.name} v#{json.version}
   """
 
-
 ###
 # main function
 
 <- (.call @)
 
-cmd-opt     = options.commandline-options
+minim-opt   = options.generate-minimist-opt!
 def-mod-opt = options.default-module-options
 
 # parse options
 parsed = minimist do
   process.argv.slice 2
-  cmd-opt-to-minimist-opt cmd-opt
+  minim-opt
 
 # show version
 if parsed.version
@@ -77,7 +55,7 @@ if parsed.version
 if parsed.help
   version!
   console.log ""
-  usage cmd-opt
+  usage!
   return true
 
 # unnamed params
@@ -89,7 +67,7 @@ regex = (param)->
     try
       new RegExp parsed[param]
     catch
-      cmd-opt[param].def
+      minim-opt['default'][param]
 
 # construct 'module-option.inject',
 get-cmd-inject-opt = ->
@@ -136,8 +114,11 @@ serv = autoreload do
   list-directory:
     parsed.'list-directory'
 
+  watch-delay:
+    parsed.'watch-delay'
+
   broadcast-delay:
-    parsed.broadcast-delay
+    parsed.'broadcast-delay'
 
   inject:
     default-inject-opt ++ get-cmd-inject-opt!
