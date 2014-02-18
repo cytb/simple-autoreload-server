@@ -17,7 +17,7 @@ Command Line Options
 
 option | default | description
 :--- | :--- | :---
-`--root, -d <param>` | `.` | _set base directory for publish._
+`--root, -d <param>` | `.` | _set base directory to publish._
 `--port, -p <param>` | `8080` | _set port to listen (http)._
 `--list-directory, -l` | `true` | _enable directory listing._
 `--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
@@ -62,7 +62,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.7
+0.0.8
 
 Installation
 --------------

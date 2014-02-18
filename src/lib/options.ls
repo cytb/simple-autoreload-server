@@ -38,7 +38,7 @@ export
     root:
       short: \d
       type:  String
-      desc:  'set base directory for publish.'
+      desc:  'set base directory to publish.'
       def: \.
 
     port:
