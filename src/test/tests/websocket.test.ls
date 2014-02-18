@@ -16,8 +16,9 @@ describe "websocket server", ->
       if data?
         assert.match S(data), e, msg
       else
-        assert @messages.some ->
-          deep-match S(it), e
+        assert do
+          @messages.some -> deep-match S(it), e
+          msg
 
     new-tester = ~>
       @tester = new Tester {
@@ -50,6 +51,7 @@ describe "websocket server", ->
     @tester.finalize!
 
   It "should be connected successfully.", (done)->
+    <~ delayed 200ms
     @expect \connected-1
     @expect \connected-2
     done!

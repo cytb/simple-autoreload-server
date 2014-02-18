@@ -1,7 +1,7 @@
-simple-autoreload-server
+simple-autoreload-server [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=master)](https://travis-ci.org/cytb/simple-autoreload-server)
 ========================
 
-[simple-autoreload-server] is simple live/auto reloading web server on Node.js.
+A simple Web server on Node.js with Live/Autoreload feature.
   - Reload statically on update the html files
   - Refresh dynamically on update the files like css, js, png, and etc.
   - No browser extensions (but the WebSocket) are needed. 
@@ -12,69 +12,27 @@ Command Line Usage
 autoreload [optoins] [root-dir] [port]
 ```
 
-
 Command Line Options
 ----
 
---root | -d <param>
-  set base directory for publish.
-  default: .
+option | default | description
+:--- | :--- | :---
+`--root, -d <param>` | `.` | _set base directory for publish._
+`--port, -p <param>` | `8080` | _set port to listen (http)._
+`--list-directory, -l` | `true` | _enable directory listing._
+`--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
+`--watch-delay <param>` | `1` | _time to delay before fireing watch event (in ms)._
+`--verbose, -v` | `false` | _enable verbose log._
+`--force-reload, -r <param>` |  | _regex pattern for file forced to reload page._
+`--broadcast-delay <param>` | `0` | _time to delay before broadcasting file update event (in ms)._
+`--no-default-script` | `false` | _disable injection of default client script._
+`--inject-file, -I <param>` |  | _set path to additional file to be injected._
+`--inject-method, -M <param>` | `p` | _specify the method [prepend or append]_
+`--inject-match-text, -T <param>` |  | _specify the pattern where to inject_
+`--inject-match-file, -F <param>` |  | _specify the pattern for file to inject_
+`--version, -V` |  | _show version_
+`--help, -h` |  | _show help_
 
---port | -p <param>
-  set port to listen (http).
-  default: 8080
-
---list-directory | -l
-  enable directory listing.
-  default: true
-
---watch | -w <param>
-  regex pattern of file to watch.
-  default: /^/
-
---watch-delay <param>
-  time to delay before fireing watch event (in ms).
-  default: 1
-
---verbose | -v
-  enable verbose log.
-  default: false
-
---force-reload | -r <param>
-  regex pattern for file forced to reload page.
-  
-
---broadcast-delay <param>
-  time to delay before broadcasting file update event (in ms).
-  default: 0
-
---no-default-script
-  disable injection of default client script.
-  default: false
-
---inject-file | -I <param>
-  set path to additional file to be injected.
-  
-
---inject-method | -M <param>
-  specify the method [prepend or append]
-  default: p
-
---inject-match-text | -T <param>
-  specify the pattern where to inject
-  
-
---inject-match-file | -F <param>
-  specify the pattern for file to inject
-  
-
---version | -V
-  show version
-  
-
---help | -h
-  show help
-  
 
 
 #### Example
@@ -97,7 +55,7 @@ var server = launcher({
 });
 ```
 
-#### Option
+#### Options
 
 See 'src/lib/options.ls' for details of options.
 

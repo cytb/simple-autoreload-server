@@ -1,7 +1,7 @@
-<%= pkg.name %>
+<%= pkg.name %> [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=master)](https://travis-ci.org/cytb/simple-autoreload-server)
 ========================
 
-[<%= pkg.name %>] is simple live/auto reloading web server on Node.js.
+A simple Web server on Node.js with Live/Autoreload feature.
   - Reload statically on update the html files
   - Refresh dynamically on update the files like css, js, png, and etc.
   - No browser extensions (but the WebSocket) are needed. 
@@ -12,20 +12,22 @@ Command Line Usage
 autoreload [optoins] [root-dir] [port]
 ```
 
-
 Command Line Options
 ----
+
+option | default | description
+:--- | :--- | :---
 <%
   options
   .generateCommandlineHelp()
   .forEach(function(opt){
-%>
-<%= opt[0] %>
-  <%= opt[1] %>
-  <%= opt[2] %>
+    var def = (opt[2] != null) ? ('`' + opt[2] + '`') : '';
+
+%>`<%= opt[0] %>` | <%= def %> | _<%= opt[1] %>_
 <%
   });
 %>
+
 
 #### Example
 
@@ -47,7 +49,7 @@ var server = launcher({
 });
 ```
 
-#### Option
+#### Options
 
 See 'src/lib/options.ls' for details of options.
 

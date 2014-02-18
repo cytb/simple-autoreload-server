@@ -27,11 +27,11 @@ export
       nshort = opt.short?         and "-#{opt.short}" or []
       param  = opt.type is String and '<param>'       or []
 
-      optnames = [ (['--' + name] ++ nshort) * ' | ' ]
+      optnames = [ (['--' + name] ++ nshort) * ', ' ]
       spec = (optnames ++ param) * ' '
 
       [ spec, opt.desc ] ++ (
-        if opt.def? then "default: #{opt.def}" else []
+        if opt.def? then opt.def else []
       )
 
   commandline-options:

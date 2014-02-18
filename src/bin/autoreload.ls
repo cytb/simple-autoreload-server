@@ -21,7 +21,7 @@ usage = ->
   for [spec,desc,def] in arr
     console.log '  ',   spec
     console.log '    ', desc
-    console.log '    ', def if def?
+    console.log '    ', "default: #def" if def?
     console.log '',
 
 # show version
