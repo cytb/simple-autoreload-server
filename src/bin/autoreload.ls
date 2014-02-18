@@ -63,11 +63,15 @@ if parsed.help
 
 # String Option -> RegExp
 regex = (param)->
-  if typeof parsed[param] is \string then
-    try
-      new RegExp parsed[param]
-    catch
-      minim-opt['default'][param]
+  p = parsed[param]
+  d = minim-opt['default'][param]
+  try
+    match typeof! p
+      | \String => new RegExp p
+      | \RegExp => p
+      | _       => d
+  catch
+    d
 
 # construct 'module-option.inject',
 get-cmd-inject-opt = ->

@@ -5,6 +5,7 @@ pathes =
   serv: <[ serv ]>
   expect: <[ expect ]>
   fixture: <[ fixture ]>
+  command: <[ bin autoreload ]>
 
 buster = require \buster
 buster.spec.expose @
@@ -27,6 +28,7 @@ require! {
   colors
   \../lib/test-utils
   \../../lib/utils
+  proc: child_process
 }
 
 {flatten} = prelude-ls
@@ -73,6 +75,26 @@ require! {
   open-data: (...names)->
     @do-file-func (@data-path names), \open-data, load
 
+  start-server-process: (opts=[],done=->)->
+    @logger \start-server-process
+    @kill-server-process!
+
+    @server-proc = proc.spawn do
+      (path.join.apply path, pathes.command)
+      (@log and ['--verbose'] or []) ++ [
+        (@data-path pathes.serv),
+        '--port', @port,
+      ] ++ opts
+
+    done @server-proc
+
+  kill-server-process: (sig='SIGKILL',done=->)->
+    @logger \kill-server-process
+    @server-proc?.kill sig
+
+    @server-proc = null
+    done!
+
   start-server: (opt={},done=->)->
     @logger \start-server
     @stop-server!
@@ -91,13 +113,16 @@ require! {
 
   check-server: ->
     @logger \check-server
-    @server or throw new Error do
+    @server or @server-proc or throw new Error do
       'server has not been prepared.'
     true
 
-  get-web-url: (file="#{@name}.html")->
-    port = @server?.options?.port
-    "http://localhost:#{port ? 80}/#{file}"
+  get-page-path: (file="#{@name}.html")->file
+
+  get-web-url: (file)->
+    page-path = @get-page-path file
+    port = @server?.options?.port or @port
+    "http://localhost:#{port ? 80}/#{page-path}"
 
   get-web-page: (file, done)->
     url = (@get-web-url file)
