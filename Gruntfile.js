@@ -29,8 +29,7 @@ module.exports = function(grunt){
   data = {
     banner: grunt.file.read('src/doc/banner.tmpl'),
     pkg: grunt.file.readJSON('package.json'),
-    shebang: '#!/usr/bin/env node\n',
-    options: require('./lib/options')
+    shebang: '#!/usr/bin/env node\n'
   };
   path = require('path');
   ref$ = require('prelude-ls'), each = ref$.each, map = ref$.map, flatten = ref$.flatten;
@@ -125,7 +124,12 @@ module.exports = function(grunt){
           'README.md': 'src/doc/README.tmpl'
         },
         options: {
-          data: data
+          data: function(){
+            return {
+              pkg: data.pkg,
+              options: require('./lib/options')
+            };
+          }
         }
       }
     },

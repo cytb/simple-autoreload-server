@@ -55,7 +55,6 @@ module.exports = (grunt)->
       #!/usr/bin/env node
 
     '''
-    options: require \./lib/options
 
   # utils
   require! path
@@ -125,7 +124,9 @@ module.exports = (grunt)->
 
     template: readme:
       files: 'README.md': 'src/doc/README.tmpl'
-      options: data: data
+      options: data: ->
+        pkg:data.pkg
+        options: require \./lib/options
 
     livescript: path-conv do
       files{ bin, src, test, gruntjs }, tmp-js, src-ls,

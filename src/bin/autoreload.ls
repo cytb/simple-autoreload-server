@@ -97,7 +97,6 @@ get-cmd-inject-opt = ->
 default-inject-opt = unless parsed.'no-default-script'
   then [def-mod-opt.inject] else []
 
-
 # start server
 serv = autoreload do
   root: root

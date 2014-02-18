@@ -8,12 +8,11 @@ require! {
   static-transform: \connect-static-transform
   \./utils
   \./watch
-  default-all-options: \./options
+  m-options: \./options
 }
 
 
-def-options = default-all-options.default-module-options
-
+def-options = m-options.default-module-options
 
 # utils
 {flatten,regex-clone,new-copy,get-logger,create-connect-stack} = utils
@@ -28,17 +27,18 @@ class SimpleAutoreloadServer
 
   get-tagged-logger = (color)->
     (tag,...texts)->
-        @normal-log.apply @, ( [tag.to-string![color]] ++ texts )
+        @log-impl.apply @, ( [tag.to-string![color]] ++ texts )
 
   (options={})->
     @living-sockets = []
 
-    @normal-log = get-logger ~>
+    @log-impl = get-logger ~>
       @@log-prefix "localhost:#{@options.port}"
 
-    @verb-log  = (->)
+    @normal-log = get-tagged-logger 'green'
+    @error-log  = get-tagged-logger 'red'
+    @verb-log   = (->)
 
-    @error-log = get-tagged-logger 'red'
     @set-options options
     @running = false
 
@@ -51,7 +51,7 @@ class SimpleAutoreloadServer
 
     # set logger state
     if options.verbose
-      @verb-log = get-tagged-logger 'green'
+      @verb-log = @normal-log
 
     @options = options
 
@@ -61,7 +61,7 @@ class SimpleAutoreloadServer
     @server?.close!
     @running = false
 
-    @normal-log "Server stopped."
+    @normal-log "server", "stopped."
 
   start: ->
     @stop! if @running
@@ -74,7 +74,7 @@ class SimpleAutoreloadServer
     root-path = @options.root.to-string!green
 
     @running = true
-    @normal-log "Server started on :#port at #root-path"
+    @normal-log "server", "started on :#port at #root-path"
 
   init: ->
     @watcher = @create-watcher!
@@ -117,13 +117,18 @@ class SimpleAutoreloadServer
       delay: @options.watch-delay
       on-change:(ev,source-path)->
         if ev is \error
-          self.error-log "watch", "error".red, source-path
+          self.error-log "watch", source-path
           return
 
-        return unless flatten [ self.options.watch ] .some ->
+        matcher = ->
           typeof! it is \RegExp and it.test source-path
 
-        self.verb-log "watch", "event on", source-path
+        unless flatten [ self.options.watch ] .some matcher
+        then
+          self.verb-log "watch", "ignored".cyan, source-path
+          return
+
+        self.normal-log "watch", "detect update", source-path
 
         http-path = (do
           try
@@ -141,17 +146,6 @@ class SimpleAutoreloadServer
           force-reload: do-reload http-path
 
     # fix Este to catch the error
-    /*
-    dir-change = este-obj.on-dir-change
-    este-obj
-      ..on-dir-change = ->
-        try
-          # call original function
-          dir-change.apply @, &
-        catch e
-          self.normal-log 'Exception'.red, e
-
-    */
     watch-obj
 
   # Creating httpd-server
@@ -254,6 +248,6 @@ class SimpleAutoreloadServer
 
 
 connect.logger.token \ar-prefix, (r)~>
-  SimpleAutoreloadServer.log-prefix do
-    r.headers.host + " httpd".green
+  SimpleAutoreloadServer.log-prefix r.headers.host
+  |> (+ " httpd".green)
 
