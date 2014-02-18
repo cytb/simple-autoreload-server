@@ -1,0 +1,7 @@
+src/
+test/
+tmp/
+.git*
+.travis*
+Gruntfile.js
+.DS_Store
