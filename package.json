@@ -14,11 +14,11 @@
     }
   ],
   "dependencies": {
-    "connect": "~2.12.0",
+    "connect": ">=2.12.0",
     "connect-static-transform": ">=0.6.3",
     "colors": "*",
     "faye-websocket": ">=0.4.0",
-    "minimist": "0.0.7"
+    "minimist": ">=0.0.7"
   },
   "devDependencies": {
     "grunt-buster": "~0.2.1",
@@ -60,10 +60,10 @@
   "main": "index.js",
   "scripts": {
     "prepublish": "npm prune",
-    "test": "grunt test"
+    "test": "grunt test --force"
   },
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=0.8.0"
   },
   "readme": "",
   "readmeFilename": "README.md"
