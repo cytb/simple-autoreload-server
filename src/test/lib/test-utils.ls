@@ -23,17 +23,23 @@ random-string = (
   |> (.map (src-string.))
   |> (.join '')
 
-load = (file,encode='utf-8')->
+load = (file)->
   try
-    fs.read-file-sync file, {encode:encode}
+    # try without encode (due to node-js bug)
+    # if failed there may be BOM at beggining of file.
+    # see https://github.com/joyent/node/issues/4039
+    fs.read-file-sync file
   catch
+    console.log e
     null
 
-store = (file,data,encode='utf-8')->
+store = (file,data)->
   try
-    fs.write-file-sync file, data, {encode:encode}
+    # due to bug (same to load)
+    fs.write-file-sync file, data
     true
   catch
+    console.log e
     false
 
 touch = (file)->
@@ -46,6 +52,7 @@ touch = (file)->
       fs.utimes-sync file, date, date
       true
     catch e2
+      console.log e,e2
       false
 
 update = (file,data)->

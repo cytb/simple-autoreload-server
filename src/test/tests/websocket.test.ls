@@ -13,7 +13,6 @@ describe "websocket server", ->
       e   = S( @tester.get-expect-json file )
       msg = "expects content of the file '#file'"
 
-
       if data?
         assert.match S(data), e, msg
       else
@@ -24,7 +23,7 @@ describe "websocket server", ->
       @tester = new Tester {
         name: \websocket-echo
         expect-ext: \.json
-        # +log
+        +log
       }, it
 
     <~ new-tester

@@ -15,7 +15,7 @@ describe "on client", ->
       @checker = new ReloadChecker {
         name: \client-code-injection
         port:12567
-        # +log
+        +log
       },{
         page-file: @html-file
         delay: 100ms

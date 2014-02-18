@@ -73,6 +73,7 @@ require! {
     joined
 
   open-data: (...names)->
+    console.log path.resolve @data-path names
     @do-file-func (@data-path names), \open-data, load
 
   start-server-process: (opts=[],done=->)->
@@ -140,7 +141,7 @@ require! {
 
   get-expect-json: (file)->
     @logger \get-expect-json
-    JSON.stringify JSON.parse @get-expect-file file
+    @get-expect-file file
 
   get-expect-file: (file)->
     @logger \get-expect-file, file

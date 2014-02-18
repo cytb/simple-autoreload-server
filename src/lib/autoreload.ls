@@ -125,10 +125,10 @@ class SimpleAutoreloadServer
 
         unless flatten [ self.options.watch ] .some matcher
         then
-          self.verb-log "watch", "ignored".cyan, source-path
+          self.verb-log "watch", "(ignored)".cyan, source-path
           return
 
-        self.normal-log "watch", "detect update", source-path
+        self.normal-log "watch", "updated", source-path
 
         http-path = (do
           try

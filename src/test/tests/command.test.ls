@@ -7,7 +7,7 @@ describe "command line", ->
       @tester = new Tester {
         port: 12352
         name: 'touch-test'
-        # +log
+        +log
       }, f
 
     @err = []
