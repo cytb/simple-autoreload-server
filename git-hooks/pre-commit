@@ -1,3 +1,14 @@
 #!/bin//sh
-grunt release-git
-exit $?
+
+GIT_DIFF="git diff --exit-code"
+RELEASE_CMD="grunt release-git"
+
+if $RELEASE_CMD && ($GIT_DIFF > /dev/null)
+then
+  exit 0
+else
+  echo 'commit canceled'
+  exit 1
+fi
+
+

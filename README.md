@@ -9,7 +9,7 @@ A simple Web server on Node.js with Live/Autoreload feature.
 Command Line Usage
 ----
 ```sh
-autoreload [optoins] [root-dir] [port]
+autoreload-server [options] [root-dir] [port]
 ```
 
 Command Line Options
@@ -39,7 +39,7 @@ option | default | description
 #### Example
 
 ```sh
-autoreload -w "\\.(html|css|js)" ./site-files 8008
+autoreload-server -w "\\.(html|css|js)" ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -63,7 +63,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.8
+0.0.9
 
 Installation
 --------------

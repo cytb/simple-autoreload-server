@@ -1,5 +1,8 @@
 /node_modules/
 /tmp/
 /test/
+/lib/
+/bin/
+/index.js
 npmdebug.log
 

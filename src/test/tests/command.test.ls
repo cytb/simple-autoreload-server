@@ -43,6 +43,7 @@ describe "command line", ->
 
     assert.equals @err.length, 0, 'asure no error on startup'
     assert.match  @out.1, 'start'
+    <~ delayed 100ms
     done!
 
   It "should be reload on touch html.", (done)->
@@ -59,7 +60,7 @@ describe "command line", ->
 
     evaluator = (-> window.loadTime)
 
-    <~ delayed 20ms
+    <~ delayed 100ms
     (page) <~ @tester.get-web-phantom @html-path
     (err,result-pre) <~ page.evaluate evaluator
 

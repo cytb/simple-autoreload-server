@@ -1,7 +1,7 @@
 {
   "name": "simple-autoreload-server",
-  "description": "Simple Web Server with live/autoreload features, without browser extensions, for web development.",
-  "version": "0.0.8",
+  "description": "Simple Web Server with live/autoreload features without browser extensions.",
+  "version": "0.0.9",
   "homepage": "https://github.com/cytb/simple-autoreload-server",
   "author": {
     "name": "cytb",
@@ -30,7 +30,8 @@
     "buster": "~0.7.8",
     "node-phantom": "~0.2.5",
     "grunt-este-watch": "~0.1.15",
-    "grunt-template": "~0.2.3"
+    "grunt-template": "~0.2.3",
+    "phantomjs": "~1.9.7-1"
   },
   "peerDependencies": {
     "LiveScript": "1.2.0",
@@ -68,3 +69,5 @@
   "readme": "",
   "readmeFilename": "README.md"
 }
+
+
