@@ -1,18 +1,20 @@
+# Watch module
+
 require! {
   fs
   path
   \./utils
 }
 
-{flatten,readdir-rec} = utils
+{flatten,visit-dir} = utils
 
 class RecursiveWatcher
-  (@dirpath,@delay=5ms,@on-change=(->))->
-    @dirs = flatten readdir-rec @dirpath .filter ->
-      try
-        fs.lstat-sync it .is-directory!
-      catch
-        false
+  ({@root,@delay=5ms,@on-change=(->),@resursive,@read-symlink})->
+
+    @dirs = if @recursive
+      then flatten visit-dir @root, (file,stat)->
+        not stat.is-symlink!
+      else [@root]
 
     @watchers = []
 
@@ -50,7 +52,7 @@ class RecursiveWatcher
   stop: ->
     @watchers.for-each (.close!)
 
-module.exports = ({root,on-change,delay})->
-  new RecursiveWatcher root,delay,on-change
+module.exports = ({root,on-change,delay}:opts)->
+  new RecursiveWatcher opts
 
 # w.start!

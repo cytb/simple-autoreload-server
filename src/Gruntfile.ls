@@ -182,6 +182,8 @@ module.exports = (grunt)->
                     livescript:src livescript:bin
                     uglify:src uglify:bin template:readme
                     chmod test clean:test clean:tmp ]>
+    * \release-git <[ release clean-all ]>
+
   |> each (grunt.registerTask.apply grunt, _)
 
 

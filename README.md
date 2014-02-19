@@ -23,7 +23,8 @@ option | default | description
 `--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
 `--watch-delay <param>` | `1` | _time to delay before fireing watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose log._
-`--force-reload, -r <param>` |  | _regex pattern for file forced to reload page._
+`--recursive, -r` | `true` | _watch directory recursively. (may take a while at startup)_
+`--force-reload, -f <param>` |  | _regex pattern for file forced to reload page._
 `--broadcast-delay <param>` | `0` | _time to delay before broadcasting file update event (in ms)._
 `--no-default-script` | `false` | _disable injection of default client script._
 `--inject-file, -I <param>` |  | _set path to additional file to be injected._

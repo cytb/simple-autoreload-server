@@ -105,6 +105,11 @@ class SimpleAutoreloadServer
 
   # Create watch
   create-watcher: ->
+
+    # show notes
+    if @options.recursive
+      @verb-log "server", "init with recursive-option. this may take a while."
+
     root     = @options.root
     abs-root = path.resolve @options.root
     self     = this
@@ -114,6 +119,7 @@ class SimpleAutoreloadServer
     # Watch
     watch-obj = watch do
       root:root
+      recursive: @options.recursive
       delay: @options.watch-delay
       on-change:(ev,source-path)->
         if ev is \error

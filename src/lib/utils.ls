@@ -1,7 +1,6 @@
 
 require! {path,fs}
 
-
 # Utils
 
 flatten = ([...array])->
@@ -30,15 +29,26 @@ get-logger = (log-prefix)->
   (...texts)-> console.log do
     ([log-prefix!] ++ (flatten texts)) * ' '
 
-readdir-rec = (dirpath)->
-  self = &callee
+visit-dir = (dirpath,file-filter=((file,stat)->true),stat)->
+  self =  &callee
   try
-    unless fs.lstat-sync dirpath .is-directory!
+    stat ?= fs.lstat-sync dirpath
+
+    unless stat .is-directory! and file-filter dirpath, stat
       return dirpath
 
     fs.readdir-sync dirpath
-    |> (.map (path.join dirpath,_))
-    |> (.map self)
+    .map ->
+      P = path.join dirpath, it
+      file: P
+      stat: fs.lstat-sync P
+
+    .filter ->
+      file-filter it.file, it.stat
+
+    .map ->
+      self it.file, file-filter, it.stat
+
     |> ([dirpath] ++)
 
   catch
@@ -64,6 +74,6 @@ load = (base,file,enc='UTF-8')->
 export {
   flatten, regex-clone, deep-copy, new-copy,
   get-logger,
-  load, readdir-rec,
+  load, visit-dir,
   create-connect-stack
 }

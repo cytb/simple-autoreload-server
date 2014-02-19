@@ -68,9 +68,14 @@ export
       desc:  'enable verbose log.'
       def: false
 
+    recursive:
+      short: \r
+      desc:  'watch directory recursively. (may take a while at startup)'
+      def: true
+
     'force-reload':
       type:  String
-      short: \r
+      short: \f
       desc:  'regex pattern for file forced to reload page.'
       def: null
 
@@ -120,8 +125,15 @@ export
   default-module-options: {
     port: 8080
     root: process.cwd!
+
+    # enable directory listing
     +list-directory
+
+    # log verbose
     -verbose
+
+    # watch recursively
+    +recursive
 
     # delay time before fireing watch event (num in ms)
     watch-delay: 1ms
@@ -139,8 +151,6 @@ export
     #
     force-reload: false
 
-    # The time to delay before broadcasting the 'update' packet.
-    broadcast-delay: 0ms
 
     # the event listener on received the message which was sent by client.
     onmessage: ((message)->)

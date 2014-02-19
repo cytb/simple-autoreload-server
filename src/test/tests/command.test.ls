@@ -1,7 +1,7 @@
 
 describe "command line", ->
   before-all (done)->
-    @timeout = 20000ms
+    @timeout = 5000ms
 
     new-one = (f)~>
       @tester = new Tester {
@@ -22,7 +22,7 @@ describe "command line", ->
     @update-html = (param)~>
       @tester.update-serv-file @html-path, param
 
-    @tester.start-server-process [], (ar)~>
+    @tester.start-server-process [], (@ar)~>
       ar.stderr.on \data, @err~push
       ar.stdout.on \data, ~>
         @out.push it
@@ -34,9 +34,16 @@ describe "command line", ->
   after-all (done)->
     @tester.kill-server-process 'SIGTERM', done
 
-  It "should be successfully started.", ->
+  It "should be successfully started.", (done)->
+    <~ (.call @)
+
+    # wait for outputing two lines
+    if @out.length < 2
+      delayed 100ms, &callee
+
     assert.equals @err.length, 0, 'asure no error on startup'
-    assert.match @out.0, "started"
+    assert.match  @out.1, 'start'
+    done!
 
   It "should be reload on touch html.", (done)->
     @update-html """

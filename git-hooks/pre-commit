@@ -1,0 +1,3 @@
+#!/bin//sh
+grunt release-git
+exit $?
