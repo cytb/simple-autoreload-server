@@ -25,7 +25,7 @@ module.exports = (options)->
 # Main class
 class SimpleAutoreloadServer
 
-  get-tagged-logger = (color)->
+  get-tagged-logger = (color,prefix="")->
     (tag,...texts)->
         @log-impl.apply @, ( [tag.to-string![color]] ++ texts )
 
@@ -36,7 +36,7 @@ class SimpleAutoreloadServer
       @@log-prefix "localhost:#{@options.port}"
 
     @normal-log = get-tagged-logger 'green'
-    @error-log  = get-tagged-logger 'red'
+    @error-log  = get-tagged-logger 'red', 'error@'
     @verb-log   = (->)
 
     @set-options options
