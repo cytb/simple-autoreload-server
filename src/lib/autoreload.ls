@@ -66,15 +66,19 @@ class SimpleAutoreloadServer
   start: ->
     @stop! if @running
     @watcher.start!
-    @server
-      ..listen @options.port
-      ..add-listener \upgrade, @create-upgrade-listerner!
 
     port      = @options.port.to-string!green
     root-path = @options.root.to-string!green
 
-    @running = true
-    @normal-log "server", "started on :#port at #root-path"
+    @server
+      .on \upgrade, @create-upgrade-listerner!
+      .on \error,   (~>@error-log \server, it.message)
+      .listen @options.port, ~>
+
+        @running = true
+        @normal-log "server", "started on :#port at #root-path"
+
+
 
   init: ->
     @watcher = @create-watcher!

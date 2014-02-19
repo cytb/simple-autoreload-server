@@ -3,7 +3,7 @@
 GIT_DIFF="git diff --exit-code"
 RELEASE_CMD="grunt release-git"
 
-if $RELEASE_CMD && ($GIT_DIFF > /dev/null)
+if $RELEASE_CMD && $GIT_DIFF
 then
   exit 0
 else
