@@ -18,6 +18,7 @@ module.exports = (grunt)->
       test/buster
       test/lib/test-utils
       test/helper/autoreload
+      test/tests/watch.test
       test/tests/autoreload.test
       test/tests/command.test
       test/tests/websocket.test

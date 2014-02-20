@@ -24,6 +24,7 @@ option | default | description
 `--watch-delay <param>` | `1` | _time to delay before fireing watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose log._
 `--recursive, -r` | `true` | _watch directory recursively. (may take a while at startup)_
+`--follow-symlink, -l` | `false` | _follow symbolic-link. (it affects only when the resursive option specified._
 `--force-reload, -f <param>` |  | _regex pattern for file forced to reload page._
 `--broadcast-delay <param>` | `0` | _time to delay before broadcasting file update event (in ms)._
 `--no-default-script` | `false` | _disable injection of default client script._
@@ -63,7 +64,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.10
+0.0.11
 
 Installation
 --------------

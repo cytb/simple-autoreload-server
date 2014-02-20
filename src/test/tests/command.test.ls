@@ -1,21 +1,23 @@
 
-describe "command line", ->
+describe "command line script", ->
   before-all (done)->
-    @timeout = 5000ms
+    @timeout = 10000ms
+
+    @tester-options = {
+      port: 12352
+      name: 'touch-test'
+      +log
+    }
 
     new-one = (f)~>
-      @tester = new Tester {
-        port: 12352
-        name: 'touch-test'
-        +log
-      }, f
+      new Tester @tester-options, f
 
     @err = []
     @out = []
 
     @first = true
 
-    <~ new-one
+    (@tester)<~ new-one
 
     @html-path = @tester.get-page-path!
 
@@ -23,8 +25,8 @@ describe "command line", ->
       @tester.update-serv-file @html-path, param
 
     @tester.start-server-process [], (@ar)~>
-      ar.stderr.on \data, @err~push
-      ar.stdout.on \data, ~>
+      @ar.stderr.on \data, @err~push
+      @ar.stdout.on \data, ~>
         @out.push it
         return unless @first
 
@@ -32,21 +34,43 @@ describe "command line", ->
         set-timeout done, 0ms
 
   after-all (done)->
-    @tester.kill-server-process 'SIGTERM', done
+    @tester.finalize!
+    done!
 
-  It "should be successfully started.", (done)->
+  It "should start server successfully.", (done)->
     <~ (.call @)
 
     # wait for outputing two lines
     if @out.length < 2
       delayed 100ms, &callee
+      return
 
     assert.equals @err.length, 0, 'asure no error on startup'
     assert.match  @out.1, 'start'
+
     <~ delayed 100ms
     done!
 
-  It "should be reload on touch html.", (done)->
+  It "should stop server with handled-error message if already started on same addr.", (done)->
+    a-out = []
+    a-err = []
+
+    new Tester @tester-options, (t)~>
+      (ar)<~t.start-server-process []
+
+      ar.stderr.on \data, a-err~push
+      ar.stdout.on \data, a-out~push
+
+      <~ ar.on \exit
+
+      assert.equals a-err.length, 0, "should not print handled error to 'stderr'."
+      assert.match  a-out.1, "error", "should print handled error to 'stdout'."
+
+      t.finalize!
+      done!
+
+
+  It "server should reload on touch html.", (done)->
     @update-html """
     <html>
       <head>

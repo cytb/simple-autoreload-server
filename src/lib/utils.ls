@@ -5,7 +5,7 @@ require! {path,fs}
 
 flatten = ([...array])->
   array.reduce ((p,n)->
-    p ++ ((typeof! n is \Array and flatten n) or [n])
+    p ++ ((typeof! n is \Array and flatten n) or n)
   ), []
 
 regex-clone = (r)->
@@ -29,29 +29,33 @@ get-logger = (log-prefix)->
   (...texts)-> console.log do
     ([log-prefix!] ++ (flatten texts)) * ' '
 
-visit-dir = (dirpath,file-filter=((file,stat)->true),stat)->
+visit-dir = (dirpath=\.,filter=((file,st)->true),stat=null,err=->)->
   self =  &callee
+
   try
     stat ?= fs.lstat-sync dirpath
 
-    unless stat .is-directory! and file-filter dirpath, stat
+    unless (stat.is-directory! and filter dirpath, stat)
       return dirpath
 
-    fs.readdir-sync dirpath
-    .map ->
-      P = path.join dirpath, it
-      file: P
-      stat: fs.lstat-sync P
+    sub = fs.readdir-sync dirpath
+      .map ->
+        P = path.join dirpath, it
+        {
+          path: P
+          stat: fs.lstat-sync P
+        }
 
-    .filter ->
-      file-filter it.file, it.stat
+      .filter ->
+        filter it.path, it.stat
 
-    .map ->
-      self it.file, file-filter, it.stat
+      .map ->
+        self it.path, filter, it.stat, err
 
-    |> ([dirpath] ++)
+    [dirpath] ++ sub
 
   catch
+    err e
     return dirpath
 
 #

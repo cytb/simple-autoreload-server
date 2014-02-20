@@ -73,6 +73,11 @@ export
       desc:  'watch directory recursively. (may take a while at startup)'
       def: true
 
+    'follow-symlink':
+      short: \l
+      desc:  'follow symbolic-link. (it affects only when the resursive option specified.'
+      def: false
+
     'force-reload':
       type:  String
       short: \f
@@ -134,6 +139,9 @@ export
 
     # watch recursively
     +recursive
+
+    # follow symlink
+    -follow-symlink
 
     # delay time before fireing watch event (num in ms)
     watch-delay: 1ms

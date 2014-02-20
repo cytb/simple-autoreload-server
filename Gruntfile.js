@@ -4,7 +4,7 @@ module.exports = function(grunt){
   files = {
     bin: ['bin/autoreload'],
     src: ['index', 'lib/client', 'lib/autoreload', 'lib/options', 'lib/utils', 'lib/watch'],
-    test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/autoreload.test', 'test/tests/command.test', 'test/tests/websocket.test'],
+    test: ['test/buster', 'test/lib/test-utils', 'test/helper/autoreload', 'test/tests/watch.test', 'test/tests/autoreload.test', 'test/tests/command.test', 'test/tests/websocket.test'],
     testData: ['test/data'],
     gruntjs: ['Gruntfile']
   };

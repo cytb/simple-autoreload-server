@@ -9,22 +9,36 @@ require! {
 {flatten,visit-dir} = utils
 
 class RecursiveWatcher
-  ({@root,@delay=5ms,@on-change=(->),@resursive,@read-symlink})->
+  ({
+    @root,
+    @delay=5ms,
+    @on-change=(->),
+    @on-error=(->),
+    @recursive=false,
+    @follow-symlink=false
+  })->
+
+    syml-filter = @follow-symlink and (->true) or (stat)->
+      not (stat.is-symbolic-link!)
+
+    filter = (,stat)->
+      stat.is-directory! and (syml-filter stat)
+
+    err = (ex)-> @on-error ex, @root
 
     @dirs = if @recursive
-      then flatten visit-dir @root, (file,stat)->
-        not stat.is-symlink!
+      then flatten (visit-dir @root, filter, null, err)
       else [@root]
 
     @watchers = []
 
-  start: (@on-change=@on-change)->
+  start: ({@on-change=@on-change,@on-error=@on-error}={})->
     @stop!
 
     self = @
     sessions = {}
 
-    listener-of = (dir)->
+    on-change-of = (dir)->
       (type,file)->
         long-path = path.join dir, file
         session   = sessions[long-path]
@@ -41,13 +55,13 @@ class RecursiveWatcher
           expire: Date.now! + self.delay
           timer: set-timeout on-expired, self.delay
 
-    error = ->
-      self.on-change \error, it
+    on-error-of = (dir)->
+      (err)-> self.on-error err, dir
 
     @watchers = @dirs.map ->
       fs.watch it
-      .on \change, listener-of it
-      .on \error,  error
+      .on \change, on-change-of it
+      .on \error,  on-error-of  it
 
   stop: ->
     @watchers.for-each (.close!)

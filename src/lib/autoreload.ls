@@ -27,7 +27,7 @@ class SimpleAutoreloadServer
 
   get-tagged-logger = (color,prefix="")->
     (tag,...texts)->
-        @log-impl.apply @, ( [tag.to-string![color]] ++ texts )
+        @log-impl.apply @, ( ["#{prefix}#{tag}"[color]] ++ texts )
 
   (options={})->
     @living-sockets = []
@@ -57,11 +57,14 @@ class SimpleAutoreloadServer
 
 
   stop: ->
-    @watcher?.stop!
-    @server?.close!
-    @running = false
+    try
+      @watcher?.stop!
+      @server?.close!
 
-    @normal-log "server", "stopped."
+      @running = false
+      @normal-log "server", "stopped."
+    catch
+      @error-log \server, e.message
 
   start: ->
     @stop! if @running
@@ -72,13 +75,18 @@ class SimpleAutoreloadServer
 
     @server
       .on \upgrade, @create-upgrade-listerner!
-      .on \error,   (~>@error-log \server, it.message)
+      .on \error,   (err)~>
+        if err.code is \EADDRINUSE
+          @error-log \server,
+            "Cannot use :#port as a listen address.",
+            "Error:", err.message
+
+          @watcher.stop!
+
       .listen @options.port, ~>
 
         @running = true
         @normal-log "server", "started on :#port at #root-path"
-
-
 
   init: ->
     @watcher = @create-watcher!
@@ -123,13 +131,13 @@ class SimpleAutoreloadServer
     # Watch
     watch-obj = watch do
       root:root
-      recursive: @options.recursive
-      delay: @options.watch-delay
-      on-change:(ev,source-path)->
-        if ev is \error
-          self.error-log "watch", source-path
-          return
+      delay:          @options.watch-delay
+      recursive:      @options.recursive
+      follow-symlink: @options.follow-symlink
+      on-error:(error,dir-path)->
+        self.error-log "watch", dir-path, "Error:", error.message
 
+      on-change:(ev,source-path)->
         matcher = ->
           typeof! it is \RegExp and it.test source-path
 

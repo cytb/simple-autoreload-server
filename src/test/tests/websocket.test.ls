@@ -2,6 +2,7 @@
 describe "websocket server", ->
 
   before-all (done)->
+
     @timeout = 5000ms
 
     @messages = []

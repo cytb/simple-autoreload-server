@@ -53,17 +53,19 @@ require! {
     @page.onConsoleMessage = ~>
       @logger "phantom console.log>".magenta, it
 
-    done!
+    done @
 
   logger: (...texts)->
     @log and console.log do
       ((["[Tester #{Date.now!}] #{@name}".yellow ] ++ texts) * ' ')
 
-  finalize: ->
+  finalize: (done=->)->
     @logger \finalize
     @page?.close!
     @phantom?.exit!
     @stop-server!
+    @kill-server-process!
+    done!
 
   data-path: (...names)->
     joined = path.join.apply path,
@@ -80,12 +82,16 @@ require! {
     @logger \start-server-process
     @kill-server-process!
 
-    @server-proc = proc.spawn do
-      (path.join.apply path, pathes.command)
-      (@log and ['--verbose'] or []) ++ [
-        (@data-path pathes.serv),
-        '--port', @port,
-      ] ++ opts
+    bin = (path.join.apply path, pathes.command)
+    arg = (@log and ['--verbose'] or []) ++ [
+      (@data-path pathes.serv),
+      '--port', @port,
+    ]
+
+    @server-proc = proc.spawn bin, (arg ++ opts)
+
+    @server-proc.on \exit, ~>
+      @server-proc = null
 
     done @server-proc
 
