@@ -22,6 +22,7 @@ module.exports = (grunt)->
       test/tests/autoreload.test
       test/tests/command.test
       test/tests/websocket.test
+      test/tests/example.test
     ]>
 
     test-data:<[

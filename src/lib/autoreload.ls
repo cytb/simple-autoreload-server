@@ -94,7 +94,7 @@ class SimpleAutoreloadServer
 
   create-upgrade-listerner: ->
     return (req, sock, head)~>
-      return unless WebSocket.isWebSocket req
+      return unless WebSocket.is-web-socket req
 
       addr = "#{sock.remote-address}:#{sock.remote-port}"
       verb-log-ws = (~>@verb-log \websocket, addr, "-", it)

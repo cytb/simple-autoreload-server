@@ -84,13 +84,13 @@ describe "command line script", ->
 
     evaluator = (-> window.loadTime)
 
-    <~ delayed 100ms
+    <~ delayed 400ms
     (page) <~ @tester.get-web-phantom @html-path
     (err,result-pre) <~ page.evaluate evaluator
 
     if err then throw that
     @update-html!
-    <~ delayed 50ms
+    <~ delayed 200ms
 
     (err,result-post) <~ page.evaluate evaluator
     if err then throw that
