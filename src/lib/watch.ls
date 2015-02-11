@@ -40,6 +40,8 @@ class RecursiveWatcher
 
     on-change-of = (dir)->
       (type,file)->
+        return if not (file? and dir?)
+
         long-path = path.join dir, file
         session   = sessions[long-path]
 
