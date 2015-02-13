@@ -4,5 +4,5 @@
 /lib/
 /bin/
 /index.js
-npmdebug.log
+npm-debug.log
 

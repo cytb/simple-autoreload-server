@@ -21,15 +21,16 @@ require! {
   \prelude-ls
   path
   #node-phantom: \node-phantom-simple # error: netstat
-  \node-phantom
+  \node-phantom-fork
   http
   connect
-  autoreload: \../../index
+  proc: child_process
   colors
   \../lib/test-utils
   \../../lib/utils
-  proc: child_process
 }
+
+autoreload = require \../../index
 
 {flatten} = prelude-ls
 {new-copy} = utils
@@ -44,7 +45,7 @@ require! {
   ({@name,@expect-ext=".html",@log=false,@port=18888},done=(->))->
     @server = null
 
-    (err,@phantom) <~ node-phantom.create
+    (err,@phantom) <~ node-phantom-fork.create
     if err then throw that
 
     (err,@page) <~ @phantom.create-page

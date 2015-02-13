@@ -1,7 +1,7 @@
 
 describe "command line script", ->
   before-all (done)->
-    @timeout = 10000ms
+    @timeout = 20000ms
 
     @tester-options = {
       port: 12352

@@ -2,15 +2,15 @@
 require! {
   connect
   colors
-  WebSocket: \faye-websocket
   http
   path
-  static-transform: \connect-static-transform
   \./utils
   \./watch
-  m-options: \./options
 }
 
+static-transform = require \connect-static-transform
+WebSocket = require \faye-websocket
+m-options = require \./options
 
 def-options = m-options.default-module-options
 
