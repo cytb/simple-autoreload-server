@@ -1,9 +1,10 @@
 
-description "Example code", ->
+describe "Example code", ->
   It "should run successfully.", ->
       ee = null
       try
-        launcher = require('simple-autoreload-server')
+        /* launcher = require('simple-autoreload-server') */
+        launcher = require('../../index.js')
         server = launcher({
           port: 8008
           root: './'
@@ -16,5 +17,5 @@ description "Example code", ->
         ee := e
 
       finally
-        assert ee == null
+        assert ee == null, ee
 

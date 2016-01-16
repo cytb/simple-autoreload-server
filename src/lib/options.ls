@@ -9,7 +9,8 @@ export
   generate-minimist-opt: (opt=@commandline-options)->
     output = {boolean:[],string:[],alias:{},default:{}}
 
-    for name, {type=null,short=[],def=null} of opt
+    for {label,type=null,short=[],def=null} in opt
+      name = label
       key = type is String and \string or \boolean
       output[key] ++= name
 
@@ -22,8 +23,8 @@ export
     output
 
   generate-commandline-help:->
-    for name, opt of @commandline-options
-
+    for opt in @commandline-options
+      name   = opt.label
       nshort = opt.short?         and "-#{opt.short}" or []
       param  = opt.type is String and '<param>'       or []
 
@@ -35,93 +36,97 @@ export
       )
 
   commandline-options:
-    root:
+    * label: 'root'
       short: \d
       type:  String
       desc:  'set base directory to publish.'
       def: \.
 
-    port:
+    * label: 'port'
       short: \p
       type:  String
       desc:  'set port to listen (http).'
       def: 8080
 
-    'list-directory':
+    * label: 'list-directory'
       short: \l
       desc:  'enable directory listing.'
       def: true
 
-    watch:
+    * label: 'watch'
       type:  String
       short: \w
       desc:  'regex pattern of file to watch.'
       def: /^/
 
-    'watch-delay':
+    * label: 'watch-delay'
       type:  String
       desc:  'time to delay before fireing watch event (in ms).'
       def: 1ms
 
-    verbose:
+    * label: 'verbose'
       short: \v
       desc:  'enable verbose log.'
       def: false
 
-    recursive:
+    * label: 'client-log'
+      desc:  'inform client to log.'
+      def: false
+
+    * label: 'recursive'
       short: \r
       desc:  'watch directory recursively. (may take a while at startup)'
       def: true
 
-    'follow-symlink':
+    * label: 'follow-symlink'
       short: \l
       desc:  'follow symbolic-link. (it affects only when the resursive option specified.'
       def: false
 
-    'force-reload':
+    * label: 'force-reload'
       type:  String
       short: \f
       desc:  'regex pattern for file forced to reload page.'
       def: null
 
-    'broadcast-delay':
+    * label: 'broadcast-delay'
       type: String
       desc: 'time to delay before broadcasting file update event (in ms).'
       def: 0ms
 
-    'no-default-script':
+    * label: 'no-default-script'
       desc:  'disable injection of default client script.'
       def:  false
 
-    'inject-file':
+    * label: 'inject-file'
       type:  String
       short: \I
       desc:  'set path to additional file to be injected.'
       def: null
 
-    'inject-method':
+    * label: 'inject-method'
       type:  String
       short: \M
       desc:  'specify the method [prepend or append]'
       def: \p
 
-    'inject-match-text':
+    * label: 'inject-match-text'
       type:  String
       short: \T
       desc:  'specify the pattern where to inject'
       def: null
 
-    'inject-match-file':
+    * label: 'inject-match-file'
       type:  String
       short: \F
       desc:  'specify the pattern for file to inject'
       def: null
 
-    version:
+    * label: 'version'
       short: \V
       desc:  'show version'
 
-    help:
+    * label: 'help'
       short: \h
       desc:  'show help'
 
@@ -142,6 +147,9 @@ export
 
     # follow symlink
     -follow-symlink
+
+    # inform client to log 
+    -client-log
 
     # delay time before fireing watch event (num in ms)
     watch-delay: 1ms

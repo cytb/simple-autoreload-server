@@ -1,7 +1,7 @@
 #!/bin//sh
 
 GIT_DIFF="git diff --exit-code"
-RELEASE_CMD="grunt release-git --force"
+RELEASE_CMD="grunt release-git"
 
 if $RELEASE_CMD && $GIT_DIFF
 then

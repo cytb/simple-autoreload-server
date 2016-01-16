@@ -1,5 +1,7 @@
 
 (->
+  logger  = ->
+
   flatten = ([...array])->
     array.reduce ((p,n)->
       p ++ ((typeof! n is \Array and flatten n) or [n])
@@ -102,56 +104,61 @@
 
       "#{@rel-path}#{qs}#{hash}"
 
-  on-update = (data)->
-    ts-key = '_tsAccessed'
+  commands =
+    update: (data)->
+      ts-key = '_tsAccessed'
 
-    P = Path data.path
+      P = Path data.path
 
-    tags = (...names)->
-      flatten names
-      .map (->[].slice.call document.getElementsByTagName it)
-      |> flatten
+      tags = (...names)->
+        flatten names
+        .map (->[].slice.call document.getElementsByTagName it)
+        |> flatten
 
-    get-related-elems = (tag-names,attrs)->
-      list = [{
-        elem: elem
-        attr: attr
-        path: Path elem.getAttribute attr
-        set: (elem.setAttribute attr, _)
-      } for elem in tags tag-names
-        for attr in attrs ]
-      .filter ({path})-> P.includes path
+      get-related-elems = (tag-names,attrs)->
+        list = [{
+          elem: elem
+          attr: attr
+          path: Path elem.getAttribute attr
+          set: (elem.setAttribute attr, _)
+        } for elem in tags tag-names
+          for attr in attrs ]
+        .filter ({path})-> P.includes path
 
-      if 0 < list.length and data.force-reload
+        if 0 < list.length and data.force-reload
+          location.reload!
+          return []
+        list
+
+      do-common-setter = (text,path,set)->
+        logger text, path.to-string!
+        path.params[ts-key] = Date.now!
+        set path.to-string!
+
+      do-refresh-all = (tag-names,...attrs)->
+        for {path,set} in get-related-elems tag-names, attrs
+          do-common-setter "refresh", path, set
+
+      do-reinsert-all = (tag-names,...attrs)->
+        for {elem,attr,path} in get-related-elems tag-names, attrs
+          new-one = dom-move-to-new elem
+          set = (new-one.set-attribute attr, _)
+
+          do-common-setter "reinsert", path, set
+          elem.parent-node
+            ..insert-before new-one, elem
+            ..remove-child  elem
+
+      if Path location.pathname .abs-path is P.abs-path
         location.reload!
-        return []
-      list
 
-    do-common-setter = (text,path,set)->
-      console.debug text, path.to-string!
-      path.params[ts-key] = Date.now!
-      set path.to-string!
+      do-refresh-all  <[ link ]>, \href
+      do-refresh-all  <[ audio img video embed object ]>, \src
+      do-reinsert-all <[ script ]>, \src
 
-    do-refresh-all = (tag-names,...attrs)->
-      for {path,set} in get-related-elems tag-names, attrs
-        do-common-setter "refresh", path, set
-
-    do-reinsert-all = (tag-names,...attrs)->
-      for {elem,attr,path} in get-related-elems tag-names, attrs
-        new-one = dom-move-to-new elem
-        set = (new-one.set-attribute attr, _)
-
-        do-common-setter "reinsert", path, set
-        elem.parent-node
-          ..insert-before new-one, elem
-          ..remove-child  elem
-
-    if Path location.pathname .abs-path is P.abs-path
-      location.reload!
-
-    do-refresh-all  <[ link ]>, \href
-    do-refresh-all  <[ audio img video embed object ]>, \src
-    do-reinsert-all <[ script ]>, \src
+    open: ({log})->
+      if log => logger := console~debug
+      logger 'Autoreload Client - connected to server.'
 
   WebS = WebSocket ? MozWebSocket ? (->
     throw new Error 'Autoreload Client - WebSocket is not available on this browser.'
@@ -164,12 +171,15 @@
 
   new WebS "ws://#{L.host}#{L.pathname}/ws"
     ..onopen = ->
-      console.log 'Autoreload Client - connected to server.'
-
     ..onmessage = ({data}:msg)->
-      console.debug 'message from server', data
-      data-obj = JSON.parse data
-      data-obj and switch data-obj.type
-        | \update => on-update data-obj
+      logger 'message from server', data
+      try
+        {type} = data-obj = JSON.parse data
+        if type of commands
+          commands[type] data-obj
+        else
+          logger "unknown command: #{type}"
+      catch e
+        log e
 
 )!

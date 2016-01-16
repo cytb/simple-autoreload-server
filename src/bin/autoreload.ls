@@ -108,6 +108,9 @@ serv = autoreload do
   watch:
     regex \watch
 
+  client-log:
+    parsed.'client-log'
+
   verbose:
     parsed.verbose
 

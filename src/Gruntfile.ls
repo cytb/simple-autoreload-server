@@ -178,7 +178,7 @@ module.exports = (grunt)->
   * * \config    <[ livescript:gruntjs copy:gruntjs reload ]>
     * \clean-all <[ clean:test clean:src clean:tmp ]>
     * \src-debug <[ livescript:src livescript:bin copy:src copy:bin ]>
-    * \test      <[ livescript:test copy:test copy:testTmp buster ]>
+    * \test      <[ livescript:src livescript:test copy:src copy:test copy:testTmp buster ]>
     * \default   <[ esteWatch ]>
     * \release   <[ clean-all
                     livescript:src livescript:bin

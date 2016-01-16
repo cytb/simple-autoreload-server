@@ -34,6 +34,7 @@ option | default | description
 `--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
 `--watch-delay <param>` | `1` | _time to delay before fireing watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose log._
+`--client-log` | `false` | _inform client to log._
 `--recursive, -r` | `true` | _watch directory recursively. (may take a while at startup)_
 `--follow-symlink, -l` | `false` | _follow symbolic-link. (it affects only when the resursive option specified._
 `--force-reload, -f <param>` |  | _regex pattern for file forced to reload page._
@@ -75,7 +76,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.13
+0.0.14
 
 Installation
 --------------

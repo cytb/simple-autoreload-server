@@ -104,7 +104,7 @@ class SimpleAutoreloadServer
       websock
       .on \open, ~>
         verb-log-ws "new connection"
-        websock.send JSON.stringify {type:\open, -client}
+        websock.send JSON.stringify {type:\open, -client, log:@options.client-log}
 
       .on \message, ({data})~>
         verb-log-ws "received message", data

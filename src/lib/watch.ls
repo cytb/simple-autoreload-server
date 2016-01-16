@@ -24,7 +24,7 @@ class RecursiveWatcher
     filter = (,stat)->
       stat.is-directory! and (syml-filter stat)
 
-    err = (ex)-> @on-error ex, @root
+    err = (ex)~> @on-error ex, @root
 
     @dirs = if @recursive
       then flatten (visit-dir @root, filter, null, err)
@@ -38,7 +38,7 @@ class RecursiveWatcher
     self = @
     sessions = {}
 
-    on-change-of = (dir)->
+    get-handler-change = (dir)->
       (type,file)->
         return if not (file? and dir?)
 
@@ -57,13 +57,13 @@ class RecursiveWatcher
           expire: Date.now! + self.delay
           timer: set-timeout on-expired, self.delay
 
-    on-error-of = (dir)->
+    get-handler-error = (dir)->
       (err)-> self.on-error err, dir
 
     @watchers = @dirs.map ->
       fs.watch it
-      .on \change, on-change-of it
-      .on \error,  on-error-of  it
+      .on \change, get-handler-change it
+      .on \error,  get-handler-error  it
 
   stop: ->
     @watchers.for-each (.close!)
