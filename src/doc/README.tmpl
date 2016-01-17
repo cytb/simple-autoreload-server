@@ -79,20 +79,7 @@ npm install simple-autoreload-server
 
 License
 ----
-<%
-  pkg.licenses.forEach(function(l){
-    %>[<%= l.type %>]
-<%
-  });
-%>
+<%= pkg.license %>
 
 [<%= pkg.name %>]:<%= pkg.homepage %>
-<%
-  pkg.licenses.forEach(function(l){
-    %>[<%= l.type %>]:<%= l.url %>
-<%
-  });
-%>
-
-
 

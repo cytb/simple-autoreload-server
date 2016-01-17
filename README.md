@@ -76,7 +76,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.14
+0.0.15
 
 Installation
 --------------
@@ -88,12 +88,7 @@ npm install simple-autoreload-server
 
 License
 ----
-[MIT License]
-
+MIT
 
 [simple-autoreload-server]:https://github.com/cytb/simple-autoreload-server
-[MIT License]:http://www.opensource.org/licenses/mit-license.php
-
-
-
 

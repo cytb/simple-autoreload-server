@@ -1,7 +1,7 @@
 {
   "name": "simple-autoreload-server",
   "description": "Simple Web Server with live/autoreload features without browser extensions.",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "homepage": "https://github.com/cytb/simple-autoreload-server",
   "author": {
     "name": "cytb",
@@ -43,12 +43,7 @@
     "development",
     "app"
   ],
-  "licenses": [
-    {
-      "type": "MIT License",
-      "url": "http://www.opensource.org/licenses/mit-license.php"
-    }
-  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/cytb/simple-autoreload-server"

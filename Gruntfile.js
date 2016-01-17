@@ -196,7 +196,7 @@ module.exports = function(grunt){
   }))(
   ['buster', 'livescript', 'este-watch', 'contrib-uglify', 'contrib-copy', 'contrib-clean', 'template']));
   return each(partialize$.apply(grunt.registerTask, [grunt.registerTask.apply, [grunt, void 8], [1]]))(
-  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'livescript:bin', 'copy:src', 'copy:bin']], ['test', ['livescript:src', 'livescript:test', 'copy:src', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'template:readme', 'chmod', 'test', 'clean:test', 'clean:tmp']], ['release-git', ['release', 'clean-all']]]);
+  [['config', ['livescript:gruntjs', 'copy:gruntjs', 'reload']], ['clean-all', ['clean:test', 'clean:src', 'clean:tmp']], ['src-debug', ['livescript:src', 'livescript:bin', 'copy:src', 'copy:bin']], ['test', ['livescript:test', 'copy:test', 'copy:testTmp', 'buster']], ['default', ['esteWatch']], ['release', ['clean-all', 'livescript:src', 'livescript:bin', 'uglify:src', 'uglify:bin', 'template:readme', 'chmod', 'test', 'clean:test', 'clean:tmp']], ['release-git', ['release', 'clean-all']]]);
 };
 function curry$(f, bound){
   var context,
