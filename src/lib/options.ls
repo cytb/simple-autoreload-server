@@ -53,6 +53,15 @@ export
       desc:  'enable directory listing.'
       def: true
 
+    * label: 'execute'
+      type:  String
+      desc:  'execute command when the server is ready to accept.'
+      def: null
+
+    * label: 'stop-on-exit'
+      desc:  'stop server when process specified by \'--execute\' died.'
+      def: false
+
     * label: 'watch'
       type:  String
       short: \w

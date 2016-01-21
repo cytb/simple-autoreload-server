@@ -126,6 +126,12 @@ serv = autoreload do
   broadcast-delay:
     parsed.'broadcast-delay'
 
+  execute:
+    parsed.execute
+
+  stop-on-exit:
+    parsed.'stop-on-exit'
+
   inject:
     default-inject-opt ++ get-cmd-inject-opt!
 

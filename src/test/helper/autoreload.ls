@@ -84,12 +84,14 @@ autoreload = require \../../index
     @kill-server-process!
 
     bin = (path.join.apply path, pathes.command)
-    arg = (@log and ['--verbose'] or []) ++ [
-      (@data-path pathes.serv),
-      '--port', @port,
-    ]
+    arg = []
+      ..push '--verbose' if @log
+      ..push (@data-path pathes.serv)
+      ..push ['--port', @port]
 
-    @server-proc = proc.spawn bin, (arg ++ opts)
+    arg = flatten (arg ++ opts)
+
+    @server-proc = proc.spawn bin, arg
 
     @server-proc.on \exit, ~>
       @server-proc = null
@@ -173,7 +175,7 @@ autoreload = require \../../index
     @do-file-func file, name, func
 
   do-file-func: (file,name,func)->
-    suc = @get-state func file
+    suc = @get-state (func file)
     @logger name, suc.state, file
     suc.result
 

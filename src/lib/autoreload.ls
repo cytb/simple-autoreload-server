@@ -4,6 +4,7 @@ require! {
   colors
   http
   path
+  child_process
   \./utils
   \./watch
 }
@@ -70,23 +71,36 @@ class SimpleAutoreloadServer
     @stop! if @running
     @watcher.start!
 
-    port      = @options.port.to-string!green
-    root-path = @options.root.to-string!green
+    port = @options.port
+    root = @options.root
+
+    s-port = port.to-string!green
+    s-root = root.to-string!green
 
     @server
       .on \upgrade, @create-upgrade-listerner!
-      .on \error,   (err)~>
+      .on \error, (err)~>
         if err.code is \EADDRINUSE
           @error-log \server,
-            "Cannot use :#port as a listen address.",
+            "Cannot use :#s-port as a listen address.",
             "Error:", err.message
 
           @watcher.stop!
 
-      .listen @options.port, ~>
-
+      .listen port, ~>
         @running = true
-        @normal-log "server", "started on :#port at #root-path"
+        @normal-log "server", "started on :#s-port at #root"
+
+        if @options.execute?
+          @verb-log "server", "execute command: #{that}"
+          child = child_process.exec that, {stdio: \ignore}
+          child.unref!
+
+          if @options.stop-on-exit
+            @verb-log "server", "server will stop when the command has exit."
+            child.on \exit, ~>
+              @normal-log "server", "child command has finished."
+              @stop!
 
   init: ->
     @watcher = @create-watcher!
