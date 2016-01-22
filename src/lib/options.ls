@@ -55,6 +55,7 @@ export
 
     * label: 'execute'
       type:  String
+      short: \e
       desc:  'execute command when the server is ready to accept.'
       def: null
 
