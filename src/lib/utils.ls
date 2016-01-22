@@ -3,10 +3,11 @@ require! {path,fs}
 
 # Utils
 
-flatten = ([...array])->
-  array.reduce ((p,n)->
-    p ++ ((typeof! n is \Array and flatten n) or n)
-  ), []
+flatten = (x)->
+  if x instanceof Array
+    while x.some (instanceof Array)
+      x .= reduce ((a,b)-> a.concat b), []
+  x
 
 regex-clone = (r)->
   flags = for k,v of r{global,multiline,ignore-case}
@@ -29,34 +30,36 @@ get-logger = (log-prefix)->
   (...texts)-> console.log do
     ([log-prefix!] ++ (flatten texts)) * ' '
 
-visit-dir = (dirpath=\.,filter=((file,st)->true),stat=null,err=->)->
-  self =  &callee
+visit-dir = ({
+  dirpath  = \.
+  filter   = ((m)-> m.stat.is-directory!)
+  on-error = (->)
+}:param={})->
+
+  self   = &callee
 
   try
-    stat ?= fs.lstat-sync dirpath
-
-    unless (stat.is-directory! and filter dirpath, stat)
-      return dirpath
-
     sub = fs.readdir-sync dirpath
       .map ->
-        P = path.join dirpath, it
-        {
-          path: P
-          stat: fs.lstat-sync P
-        }
+        try
+          P = path.join dirpath, it
+          {
+            dirpath: P
+            stat:    fs.lstat-sync P
+          }
+        catch ex
+          on-error ex
+          return null
+      .filter (isnt null)
+      .filter filter
+      .map (<<< {on-error,filter})
+      .map self
 
-      .filter ->
-        filter it.path, it.stat
-
-      .map ->
-        self it.path, filter, it.stat, err
-
-    [dirpath] ++ sub
+    flatten ([dirpath].concat sub)
 
   catch
-    err e
-    return dirpath
+    on-error e
+    return []
 
 #
 # Connect Middle-ware API

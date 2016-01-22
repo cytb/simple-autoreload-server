@@ -1,4 +1,3 @@
-# Watch module
 
 require! {
   fs
@@ -18,16 +17,23 @@ class RecursiveWatcher
     @follow-symlink=false
   })->
 
-    syml-filter = @follow-symlink and (->true) or (stat)->
-      not (stat.is-symbolic-link!)
+    if @follow-symlink
+      filter = ({stat})->
+        stat.is-directory!
+    else
+      filter = ({stat})->
+        stat.is-directory! and
+          (not stat.is-symbolic-link!)
 
-    filter = (,stat)->
-      stat.is-directory! and (syml-filter stat)
-
-    err = (ex)~> @on-error ex, @root
+    param = {
+      dirpath:  @root
+      filter
+      on-error: (ex)~>
+        @on-error ex, @root
+    }
 
     @dirs = if @recursive
-      then flatten (visit-dir @root, filter, null, err)
+      then flatten (visit-dir param)
       else [@root]
 
     @watchers = []

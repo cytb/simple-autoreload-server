@@ -64,12 +64,16 @@ class SimpleAutoreloadServer
 
       @running = false
       @normal-log "server", "stopped."
-    catch
-      @error-log \server, e.message
+    catch e
+      @error-log "server", e.message
 
   start: ->
-    @stop! if @running
-    @watcher.start!
+    try
+      @stop! if @running
+      @watcher.start!
+    catch e
+      @error-log "server", e.message
+
 
     port = @options.port
     root = @options.root
@@ -137,14 +141,13 @@ class SimpleAutoreloadServer
       @verb-log "server", "init with recursive-option. this may take a while."
 
     root     = @options.root
-    abs-root = path.resolve @options.root
     self     = this
 
     do-reload = @@@create-reload-matcher @options.force-reload
 
     # Watch
     watch-obj = watch do
-      root:root
+      root:           root
       delay:          @options.watch-delay
       recursive:      @options.recursive
       follow-symlink: @options.follow-symlink
