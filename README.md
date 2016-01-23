@@ -31,6 +31,7 @@ option | default | description
 `--root, -d <param>` | `.` | _set base directory to publish._
 `--port, -p <param>` | `8080` | _set port to listen (http)._
 `--list-directory, -l` | `true` | _enable directory listing._
+`--browse, -b` | `false` | _browse server by default program._
 `--execute, -e <param>` |  | _execute command when the server is ready to accept._
 `--stop-on-exit` | `false` | _stop server when process specified by '--execute' died._
 `--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
@@ -78,7 +79,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.17
+0.0.18
 
 Installation
 --------------

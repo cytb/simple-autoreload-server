@@ -53,6 +53,11 @@ export
       desc:  'enable directory listing.'
       def: true
 
+    * label: 'browse'
+      short: \b
+      desc:  'browse server by default program.'
+      def: false
+
     * label: 'execute'
       type:  String
       short: \e

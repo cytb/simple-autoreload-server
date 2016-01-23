@@ -1,7 +1,7 @@
 {
   "name": "simple-autoreload-server",
   "description": "Simple Web Server with live/autoreload features without browser extensions.",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "homepage": "https://github.com/cytb/simple-autoreload-server",
   "author": {
     "name": "cytb",
@@ -14,9 +14,9 @@
     }
   ],
   "dependencies": {
+    "colors": "0.6.2",
     "connect": "2.13.1",
     "connect-static-transform": "0.6.3",
-    "colors": "0.6.2",
     "faye-websocket": "0.9.2",
     "minimist": "0.0.7"
   },
@@ -62,5 +62,3 @@
   "readme": "",
   "readmeFilename": "README.md"
 }
-
-

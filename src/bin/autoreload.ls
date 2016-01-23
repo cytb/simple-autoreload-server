@@ -129,6 +129,9 @@ serv = autoreload do
   execute:
     parsed.execute
 
+  browse:
+    parsed.browse
+
   stop-on-exit:
     parsed.'stop-on-exit'
 

@@ -1,8 +1,8 @@
 
 require! {
+  http
   connect
   colors
-  http
   path
   child_process
   \./utils
@@ -25,6 +25,14 @@ module.exports = (options)->
 
 # Main class
 class SimpleAutoreloadServer
+  open-default = (arg)->
+    open = switch process.platform
+      | /^dar/ => 'open'
+      | /^win/ => 'start ""'
+      | otherwise => 'xdg-open'
+
+    child = child_process.exec "#{open} #{arg}", {stdio: \ignore}
+    child.unref!
 
   get-tagged-logger = (color,prefix="")->
     (tag,...texts)->
@@ -105,6 +113,16 @@ class SimpleAutoreloadServer
             child.on \exit, ~>
               @normal-log "server", "child command has finished."
               @stop!
+
+        if @options.browse
+          {port,address} = @server.address!
+
+          if address is "0.0.0.0"
+            address = "localhost"
+
+          server-url = "http://#{address}:#{port}/"
+          @verb-log "server", "open #server-url"
+          open-default server-url
 
   init: ->
     @watcher = @create-watcher!
