@@ -31,22 +31,22 @@ option | default | description
 `--root, -d <param>` | `.` | _set base directory to publish._
 `--port, -p <param>` | `8080` | _set port to listen (http)._
 `--list-directory, -l` | `true` | _enable directory listing._
-`--browse, -b` | `false` | _browse server by default program._
-`--execute, -e <param>` |  | _execute command when the server is ready to accept._
-`--stop-on-exit` | `false` | _stop server when process specified by '--execute' died._
-`--watch, -w <param>` | `/^/` | _regex pattern of file to watch._
-`--watch-delay <param>` | `1` | _time to delay before fireing watch event (in ms)._
-`--verbose, -v` | `false` | _enable verbose log._
+`--browse, -b` | `false` | _open url of server by platform default program._
+`--execute, -e <param>` |  | _execute command when the server has prepared._
+`--stop-on-exit` | `false` | _exit when invoked process specified by '--execute' died._
+`--watch, -w <param>` | `/^/` | _regex pattern for file to watch._
+`--watch-delay <param>` | `1` | _delay the watch event to supress duplication (in ms)._
+`--verbose, -v` | `false` | _enable verbose logging._
 `--client-log` | `false` | _inform client to log._
-`--recursive, -r` | `true` | _watch directory recursively. (may take a while at startup)_
-`--follow-symlink, -l` | `false` | _follow symbolic-link. (it affects only when the resursive option specified._
-`--force-reload, -f <param>` |  | _regex pattern for file forced to reload page._
-`--broadcast-delay <param>` | `0` | _time to delay before broadcasting file update event (in ms)._
-`--no-default-script` | `false` | _disable injection of default client script._
-`--inject-file, -I <param>` |  | _set path to additional file to be injected._
-`--inject-method, -M <param>` | `p` | _specify the method [prepend or append]_
-`--inject-match-text, -T <param>` |  | _specify the pattern where to inject_
-`--inject-match-file, -F <param>` |  | _specify the pattern for file to inject_
+`--recursive, -r` | `true` | _watch sub-directories recursively. (may take a while at startup)_
+`--follow-symlink, -l` | `false` | _follow symbolic-link. (it affects only when the resursive option specified.)_
+`--force-reload, -f <param>` |  | _regex pattern for file forced to reload the whole page._
+`--broadcast-delay <param>` | `0` | _delay time before broadcasting event (in ms)._
+`--no-default-script` | `false` | _disable default script injection._
+`--inject-file, -I <param>` |  | _the file to be injected into content._
+`--inject-method, -M <param>` | `p` | _specify the injection method [prepend or append]_
+`--inject-match-text, -T <param>` |  | _specify the regex or string pattern for content where to inject_
+`--inject-match-file, -F <param>` |  | _specify the regex pattern for file where to inject._
 `--version, -V` |  | _show version_
 `--help, -h` |  | _show help_
 

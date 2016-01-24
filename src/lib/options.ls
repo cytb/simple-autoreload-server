@@ -55,33 +55,33 @@ export
 
     * label: 'browse'
       short: \b
-      desc:  'browse server by default program.'
+      desc:  'open url of server by platform default program.'
       def: false
 
     * label: 'execute'
       type:  String
       short: \e
-      desc:  'execute command when the server is ready to accept.'
+      desc:  'execute command when the server has prepared.'
       def: null
 
     * label: 'stop-on-exit'
-      desc:  'stop server when process specified by \'--execute\' died.'
+      desc:  'exit when invoked process specified by \'--execute\' died.'
       def: false
 
     * label: 'watch'
       type:  String
       short: \w
-      desc:  'regex pattern of file to watch.'
+      desc:  'regex pattern for file to watch.'
       def: /^/
 
     * label: 'watch-delay'
       type:  String
-      desc:  'time to delay before fireing watch event (in ms).'
+      desc:  'delay the watch event to supress duplication (in ms).'
       def: 1ms
 
     * label: 'verbose'
       short: \v
-      desc:  'enable verbose log.'
+      desc:  'enable verbose logging.'
       def: false
 
     * label: 'client-log'
@@ -90,51 +90,51 @@ export
 
     * label: 'recursive'
       short: \r
-      desc:  'watch directory recursively. (may take a while at startup)'
+      desc:  'watch sub-directories recursively. (may take a while at startup)'
       def: true
 
     * label: 'follow-symlink'
       short: \l
-      desc:  'follow symbolic-link. (it affects only when the resursive option specified.'
+      desc:  'follow symbolic-link. (it affects only when the resursive option specified.)'
       def: false
 
     * label: 'force-reload'
       type:  String
       short: \f
-      desc:  'regex pattern for file forced to reload page.'
+      desc:  'regex pattern for file forced to reload the whole page.'
       def: null
 
     * label: 'broadcast-delay'
       type: String
-      desc: 'time to delay before broadcasting file update event (in ms).'
+      desc: 'delay time before broadcasting event (in ms).'
       def: 0ms
 
     * label: 'no-default-script'
-      desc:  'disable injection of default client script.'
+      desc:  'disable default script injection.'
       def:  false
 
     * label: 'inject-file'
       type:  String
       short: \I
-      desc:  'set path to additional file to be injected.'
+      desc:  'the file to be injected into content.'
       def: null
 
     * label: 'inject-method'
       type:  String
       short: \M
-      desc:  'specify the method [prepend or append]'
+      desc:  'specify the injection method [prepend or append]'
       def: \p
 
     * label: 'inject-match-text'
       type:  String
       short: \T
-      desc:  'specify the pattern where to inject'
+      desc:  'specify the regex or string pattern for content where to inject'
       def: null
 
     * label: 'inject-match-file'
       type:  String
       short: \F
-      desc:  'specify the pattern for file to inject'
+      desc:  'specify the regex pattern for file where to inject.'
       def: null
 
     * label: 'version'
