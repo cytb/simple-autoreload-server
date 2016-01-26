@@ -79,7 +79,7 @@ See 'src/lib/options.ls' for details of options.
 
 Version
 ----
-0.0.18
+0.0.19
 
 Installation
 --------------

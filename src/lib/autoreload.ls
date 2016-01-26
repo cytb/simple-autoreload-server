@@ -27,11 +27,11 @@ module.exports = (options)->
 class SimpleAutoreloadServer
   open-default = (arg)->
     open = switch process.platform
-      | /^dar/ => 'open'
-      | /^win/ => 'start ""'
+      | that is /^dar/ => 'open'
+      | that is /^win/ => 'start ""'
       | otherwise => 'xdg-open'
 
-    child = child_process.exec "#{open} #{arg}", {stdio: \ignore}
+    child = child_process.exec "#{open} '#{arg}'", {stdio: \ignore}
     child.unref!
 
   get-tagged-logger = (color,prefix="")->
