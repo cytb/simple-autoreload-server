@@ -180,11 +180,10 @@ module.exports = (grunt)->
     * \src-debug <[ livescript:src livescript:bin copy:src copy:bin chmod ]>
     * \test      <[ livescript:test copy:test copy:testTmp buster ]>
     * \default   <[ esteWatch ]>
-    * \release   <[ clean-all
-                    livescript:src livescript:bin
-                    uglify:src uglify:bin template:readme
-                    chmod test clean:test clean:tmp ]>
-    * \release-git <[ release clean-all ]>
+    * \build     <[ livescript:src livescript:bin
+                    uglify:src uglify:bin template:readme chmod ]>
+    * \release   <[ build test clean:test clean:tmp ]>
+    * \release-git <[ build test clean-all ]>
 
   |> each (grunt.registerTask.apply grunt, _)
 

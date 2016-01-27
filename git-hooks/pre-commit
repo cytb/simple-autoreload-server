@@ -1,14 +1,31 @@
 #!/bin//sh
 
-GIT_DIFF="git diff --exit-code"
-RELEASE_CMD="grunt release-git"
+NO_DIFF_STAGE="git diff --exit-code"
+NO_DIFF_REPO="git diff --cached --exit-code"
 
-if $RELEASE_CMD && $GIT_DIFF
-then
-  exit 0
+RELEASE_CMD="grunt release-git"
+BUILD_CMD="grunt build"
+
+$BUILD_CMD 
+if ! $NO_DIFF_STAGE; then
+  echo -n "detected unstaged changes."
 else
-  echo 'commit canceled'
-  exit 1
+  if $NO_DIFF_REPO; then
+    echo "not modified."
+    exit 0
+  fi
+
+  if ! $RELEASE_CMD; then
+    echo -n "running pre-release task failed."
+  elif ! $NO_DIFF_STAGE; then
+    echo -n "detected unstaged changes."
+  else
+    echo "succeeded"
+    exit 0
+  fi
 fi
+
+echo ' commit canceled.'
+exit 1
 
 
