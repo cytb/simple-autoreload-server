@@ -27,7 +27,7 @@ module.exports = (options)->
 # Main class
 class SimpleAutoreloadServer
   open-default = ->
-    opener it, {stdio: \ignore} .unref!
+    opener "\"#{it}\"", {stdio: \ignore} .unref!
 
   get-tagged-logger = (color,prefix="")->
     (tag,...texts)->
