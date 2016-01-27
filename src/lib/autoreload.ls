@@ -26,11 +26,11 @@ module.exports = (options)->
 # Main class
 class SimpleAutoreloadServer
   open-default = (arg)->
-    platform = process.platform
+    {platform} = process
     open = switch
-      | platform is /^dar/ => 'open'
-      | platform is /^win/ => 'start ""'
-      | otherwise => 'xdg-open'
+    | platform == /^dar/ => 'open'
+    | platform == /^win/ => 'start ""'
+    | otherwise => 'xdg-open'
 
     child = child_process.exec "#{open} '#{arg}'", {stdio: \ignore}
     child.unref!
