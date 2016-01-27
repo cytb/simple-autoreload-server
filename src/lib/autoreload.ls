@@ -112,7 +112,7 @@ class SimpleAutoreloadServer
         if @options.browse
           {port,address} = @server.address!
 
-          if address is "0.0.0.0"
+          if address in <[ 0.0.0.0 :: ]>
             address = "localhost"
 
           server-url = "http://#{address}:#{port}/"
