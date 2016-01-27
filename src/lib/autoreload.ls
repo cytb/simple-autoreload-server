@@ -5,6 +5,7 @@ require! {
   colors
   path
   child_process
+  opener
   \./utils
   \./watch
 }
@@ -25,14 +26,8 @@ module.exports = (options)->
 
 # Main class
 class SimpleAutoreloadServer
-  open-default = (arg)->
-    open = switch process.platform
-      | that is /^dar/ => 'open'
-      | that is /^win/ => 'start ""'
-      | otherwise => 'xdg-open'
-
-    child = child_process.exec "#{open} '#{arg}'", {stdio: \ignore}
-    child.unref!
+  open-default = ->
+    opener it, {stdio: \ignore} .unref!
 
   get-tagged-logger = (color,prefix="")->
     (tag,...texts)->
