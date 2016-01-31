@@ -75,6 +75,7 @@ regex = (param)->
 
 # construct 'module-option.inject',
 get-cmd-inject-opt = ->
+
   a-file   = [] ++ parsed.'inject-file'
   a-method = [] ++ parsed.'inject-method'
   a-m-text = [] ++ parsed.'inject-match-text'
@@ -101,41 +102,31 @@ get-cmd-inject-opt = ->
 default-inject-opt = unless parsed.'no-default-script'
   then [def-mod-opt.inject] else []
 
+
+# ls-name -> js-name
+camel-case = (str)->
+  camel = (s)-> s.char-at 0 .to-upper-case! + s.slice 1
+  list = str.split '-'
+  replaced = (list.slice 0,1) ++ (list.slice 1 .map camel)
+  replaced.join ''
+
+raw-options = {}
+
+for key, val of parsed{
+  'client-log',verbose,'list-directory',
+  'watch-delay','broadcast-delay',
+  execute, browse, 'stop-on-exit'
+}
+  raw-options[camel-case key] = val
+
 # start server
 serv = autoreload do
-  root: root
-  port: port
-  watch:
-    regex \watch
+    {
+      root, port,
+      watch: regex \watch
+      force-reload:
+        (regex 'force-reload') or def-mod-opt.force-reload
 
-  client-log:
-    parsed.'client-log'
-
-  verbose:
-    parsed.verbose
-
-  force-reload:
-    (regex 'force-reload') or def-mod-opt.force-reload
-
-  list-directory:
-    parsed.'list-directory'
-
-  watch-delay:
-    parsed.'watch-delay'
-
-  broadcast-delay:
-    parsed.'broadcast-delay'
-
-  execute:
-    parsed.execute
-
-  browse:
-    parsed.browse
-
-  stop-on-exit:
-    parsed.'stop-on-exit'
-
-  inject:
-    default-inject-opt ++ get-cmd-inject-opt!
-
+      inject: default-inject-opt ++ get-cmd-inject-opt!
+    } <<< raw-options
 

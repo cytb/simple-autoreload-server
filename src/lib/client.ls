@@ -1,10 +1,9 @@
-
 (->
   logger  = ->
 
   flatten = ([...array])->
     array.reduce ((p,n)->
-      p ++ ((typeof! n is \Array and flatten n) or [n])
+      p.concat ((n instanceof Array) and (flatten n) or n)
     ), []
 
   # Code injected by auoreload-server
@@ -19,14 +18,19 @@
     it.parentNode.removeChild it
 
   dom-move-to-new = (target)->
-    elem = document.create-element do
-      target.tag-name.to-lower-case!
+    #
+    # [wrong-code] elem = target.cloneNode false
+    #
+    # The 'script' element cloned by cloneNode won't be executed.
+    # (https://www.w3.org/TR/html5/scripting-1.html#already-started)
+    #
 
-    for {node-value,node-name} in target.attributes
+    elem = document.createElement target.tagName
+    for {node-name,node-value} in target.attributes
       elem.set-attribute node-name, node-value
 
-    for node in target.child-nodes
-      elem.append-child node
+    while (nodes = target.childNodes).length > 0
+      elem.append-child nodes.first-child
 
     elem
 
@@ -180,6 +184,6 @@
         else
           logger "unknown command: #{type}"
       catch e
-        log e
+        logger e
 
 )!

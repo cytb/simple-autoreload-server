@@ -1,21 +1,15 @@
 {
   "name": "simple-autoreload-server",
   "description": "Simple Web Server with live/autoreload features without browser extensions.",
-  "version": "0.0.20-0",
+  "version": "0.0.21",
   "homepage": "https://github.com/cytb/simple-autoreload-server",
   "author": {
     "name": "cytb",
     "url": "https://github.com/cytb/"
   },
-  "contributors": [
-    {
-      "name": "cytb",
-      "url": "https://github.com/cytb/"
-    }
-  ],
   "dependencies": {
     "colors": "0.6.2",
-    "connect": "2.13.1",
+    "connect": "2.7.11",
     "connect-static-transform": "0.6.3",
     "faye-websocket": "0.9.2",
     "minimist": "0.0.7",
@@ -55,8 +49,9 @@
   "main": "index.js",
   "scripts": {
     "prepublish": "grunt release --force && npm prune",
-    "test":       "grunt test --force",
-    "version":    "grunt build"
+    "test": "grunt test --force",
+    "version": "grunt build && git add .",
+    "postversion": "git push && git push --tags"
   },
   "engines": {
     "node": ">=0.8.0"

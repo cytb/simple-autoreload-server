@@ -1,6 +1,7 @@
 
 require! {
   http
+  \connect-static-transform
   connect
   colors
   path
@@ -10,7 +11,6 @@ require! {
   \./watch
 }
 
-static-transform = require \connect-static-transform
 WebSocket = require \faye-websocket
 m-options = require \./options
 
@@ -259,7 +259,7 @@ class SimpleAutoreloadServer
     (option)<- @apply-rec option-arg
     match typeof! option
       | \Function =>
-        static-transform do
+        connect-static-transform do
           root: root
           match: /^/ig
           transform: (file-path, data, send)->
@@ -268,8 +268,8 @@ class SimpleAutoreloadServer
         optm = new-copy def-options.inject, option
         index-of = if optm.prepend then (-> 0) else (.length)
 
-        static-transform do
-          root:root
+        connect-static-transform do
+          root: root
           match:optm.file
           transform: (file-path, text, send)->
             m = (optm.match.exec text) ? {0:text, index:0}

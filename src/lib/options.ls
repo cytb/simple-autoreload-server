@@ -10,30 +10,23 @@ export
     output = {boolean:[],string:[],alias:{},default:{}}
 
     for {label,type=null,short=[],def=null} in opt
-      name = label
       key = type is String and \string or \boolean
-      output[key] ++= name
+      output[key] ++= label
 
-      for sname in ([] ++ short)
-        output.alias[sname] = [name]
+      for n in [].concat short
+        output.alias[n] = [label]
 
-      if def?
-        output.default[name] = def
+      output.default[label] = def
 
     output
 
   generate-commandline-help:->
-    for opt in @commandline-options
-      name   = opt.label
-      nshort = opt.short?         and "-#{opt.short}" or []
-      param  = opt.type is String and '<param>'       or []
+    for {label,short,type,desc,def} in @commandline-options
+      spec  = ["--#{label}"]
+      short = if short? then ", -#{short}" else []
+      param = type is String and ' <param>' or []
 
-      optnames = [ (['--' + name] ++ nshort) * ', ' ]
-      spec = (optnames ++ param) * ' '
-
-      [ spec, opt.desc ] ++ (
-        if opt.def? then opt.def else []
-      )
+      [(spec ++ short ++ param).join ''] ++ desc ++ (def ? [])
 
   commandline-options:
     * label: 'root'
@@ -181,7 +174,6 @@ export
     #     Always reload the 'page' on any event if true 
     #
     force-reload: false
-
 
     # the event listener on received the message which was sent by client.
     onmessage: ((message)->)
