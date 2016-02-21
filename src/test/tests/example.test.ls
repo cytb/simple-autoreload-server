@@ -7,10 +7,10 @@ describe "Example code", ->
         launcher = require('../../index.js')
         server = launcher({
           port: 8008
-          root: './'
+          path: './'
           listDirectory: true
-          watch: /\.(png|js|html|json|swf)$/i
-          forceReload: [/\.json$/i, "static.swf"]
+          watch:  "*.{png,js,html,json,swf}"
+          reload: "{*.json,static.swf}"
         })
 
       catch e

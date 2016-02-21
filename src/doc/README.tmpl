@@ -12,7 +12,7 @@ Usage
      (e.g. npm install simple-autoreload-server)
 
   2. Start autoreload-server from command line.
-     (e.g. autoreload-server ./ 8080)
+     (e.g. autoreload-server -d ./ -p 8080)
 
   3. Open server url with your browser.
      (e.g. iexplore http://localhost:8080/)
@@ -29,12 +29,12 @@ Command Line Options
 option | default | description
 :--- | :--- | :---
 <%
-  options
-  .generateCommandlineHelp()
-  .forEach(function(opt){
-    var def = (opt[2] != null) ? ('`' + opt[2] + '`') : '';
+  options.forEach(function(opt){
+    var option = ("--"+opt.label) + (opt.short ? (", -"+opt.short) : "");
+    var def    = (opt.def != null) ? ('`' + opt.def + '`') : '';
+    var help   = opt.help;
 
-%>`<%= opt[0] %>` | <%= def %> | _<%= opt[1] %>_
+%>`<%= option %>` | <%= def %> | _<%= help %>_
 <%
   });
 %>
@@ -53,16 +53,16 @@ var launcher = require('<%= pkg.name %>');
 
 var server = launcher({
   port: 8008,
-  root: './',
+  path: './',
   listDirectory: true,
-  watch: /\.(png|js|html|json|swf)$/i,
-  forceReload: [/\.json$/i, "static.swf"]
+  watch:  "*.{png,js,html,json,swf}"
+  reload: "{*.json,static.swf}"
 });
 ```
 
 #### Options
 
-See 'src/lib/options.ls' for details of options.
+See 'src/lib/option-list.ls' for details of options.
 
 
 Version

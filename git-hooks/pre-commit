@@ -3,8 +3,8 @@
 NO_DIFF_STAGE="git diff --exit-code"
 NO_DIFF_REPO="git diff --cached --exit-code"
 
-RELEASE_CMD="grunt release-git"
-BUILD_CMD="grunt build"
+RELEASE_CMD="gulp release-git"
+BUILD_CMD="gulp build:src"
 
 $BUILD_CMD 
 if ! $NO_DIFF_STAGE; then

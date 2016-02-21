@@ -4,5 +4,7 @@
 /lib/
 /bin/
 /index.js
+/client.html
+/buster.js
 npm-debug.log
 

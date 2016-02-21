@@ -1,11 +1,11 @@
 <- (.call (global ? @))
 
 pathes =
-  data: <[ tmp test data ]>
+  data: <[ test data ]>
   serv: <[ serv ]>
   expect: <[ expect ]>
   fixture: <[ fixture ]>
-  command: <[ bin autoreload ]>
+  command: <[ bin autoreload.js ]>
 
 buster = require \buster
 buster.spec.expose @
@@ -18,22 +18,21 @@ buster.spec.expose @
 
 # require 
 require! {
-  \prelude-ls
+  'prelude-ls'
   path
   #node-phantom: \node-phantom-simple # error: netstat
-  \node-phantom-fork
+  'node-phantom-fork'
   http
   connect
-  proc: child_process
+  'child_process': proc
   colors
-  \../lib/test-utils
-  \../../lib/utils
+  '../lib/test-utils'
+  '../../index': autoreload
 }
 
-autoreload = require \../../index
 
 {flatten} = prelude-ls
-{new-copy} = utils
+{new-copy} = test-utils
 
 @{delayed,random-string} = test-utils
 
@@ -53,6 +52,12 @@ autoreload = require \../../index
 
     @page.onConsoleMessage = ~>
       @logger "phantom console.log>".magenta, it
+
+    @page.onError = ([msg,stack])~>
+      @logger "phantom error>".red, msg
+      for stack
+        @logger "phantom error>".red, ..file, ..line, ..function
+
 
     done @
 
@@ -111,7 +116,7 @@ autoreload = require \../../index
 
     opt.verbose ?= @log
     opt.port ?= @port
-    opt.root ?= @data-path pathes.serv
+    opt.path ?= @data-path pathes.serv
 
     @server = autoreload opt
     done!
@@ -131,7 +136,7 @@ autoreload = require \../../index
 
   get-web-url: (file)->
     page-path = @get-page-path file
-    port = @server?.options?.port or @port
+    port  = @server?.options?.port or @port
     "http://localhost:#{port ? 80}/#{page-path}"
 
   get-web-page: (file, done)->

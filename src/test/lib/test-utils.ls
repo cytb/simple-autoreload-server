@@ -3,25 +3,14 @@ require! fs
 
 # TestUtils
 
-delayed = (...args-src)->
-  args = args-src.slice!
-  args.length > 0 and do
-    func = args.pop!
-    time = args.reduce (+), 0
-
-    set-timeout func, time
+delayed = (time,func)->
+  set-timeout func, time
 
 random-string = (
   length = 24chars,
-  src-string = [
-      [\a to \z] [\A to \Z] [0 to 9]
-  ] |> (.reduce (.concat &1), [])
+  src    = ([[\a to \z], [\A to \Z], [0 to 9]].reduce (++),[]) * ''
 )->
-  max = src-string.length
-  for til length
-      (Math.random! * max) .|. 0
-  |> (.map (src-string.))
-  |> (.join '')
+  [ src.char-at (Math.random! * src.length) for til length ] * ''
 
 load = (file)->
   try
@@ -68,8 +57,22 @@ deep-match = (obj,needle,matcher=(a,b)->a==b)->
     return false unless matched
   true
 
+deep-copy = (src={},out={})->
+    for k,v of src
+      out[k] = match typeof v
+      | _       => v
+      | /^obj/g => match typeof! v
+        | _       => &callee v, (&callee out[k])
+        | \RegExp => regex-clone v
+    out
+
+new-copy = (src={},out={})->
+  deep-copy src, deep-copy out
+
+
 export
   delayed, random-string,
   load, store, touch, update
+  new-copy
   deep-match
 

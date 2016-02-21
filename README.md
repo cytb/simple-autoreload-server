@@ -12,7 +12,7 @@ Usage
      (e.g. npm install simple-autoreload-server)
 
   2. Start autoreload-server from command line.
-     (e.g. autoreload-server ./ 8080)
+     (e.g. autoreload-server -d ./ -p 8080)
 
   3. Open server url with your browser.
      (e.g. iexplore http://localhost:8080/)
@@ -28,27 +28,35 @@ Command Line Options
 
 option | default | description
 :--- | :--- | :---
-`--root, -d <param>` | `.` | _set base directory to publish._
-`--port, -p <param>` | `8080` | _set port to listen (http)._
+`--path, -d` | `.` | _set directory to publish._
+`--watch, -w` | `**` | _pattern for file to watch._
+`--reload, -R` | `false` | _pattern for file to reload the whole page._
+`--mount.path, -m` | `.` | _set additional directory to publish._
+`--mount.target` | `/` | _server path as route target._
+`--mount.watch` | `**` | _pattern for file to watch._
+`--host, -H` | `0.0.0.0` | _set host address to publish._
+`--port, -p` | `8080` | _set port to listen (http)._
+`--config, -C` | `.autoreload.json` | _load json as config._
 `--list-directory, -l` | `true` | _enable directory listing._
-`--browse, -b` | `false` | _open url of server by platform default program._
-`--execute, -e <param>` |  | _execute command when the server has prepared._
-`--stop-on-exit` | `false` | _exit when invoked process specified by '--execute' died._
-`--watch, -w <param>` | `/^/` | _regex pattern for file to watch._
-`--watch-delay <param>` | `1` | _delay the watch event to supress duplication (in ms)._
+`--browse, -b` | `false` | _open server url by platform default program._
+`--execute, -e` | `` | _execute command when the server has prepared._
+`--stop-on-exit` | `false` | _exit when invoked process specified by "--execute" died._
+`--ignore-case, -i` | `true` | _ignore case of glob patterns._
+`--watch-delay` | `1` | _delay time to supress duplicated watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose logging._
+`--builtin-script` | `true` | _enable default built-in script injection._
+`--client-module` | `true` | _expose client module to 'window' object.  (unimplemented!)_
 `--client-log` | `false` | _inform client to log._
 `--recursive, -r` | `true` | _watch sub-directories recursively. (may take a while at startup)_
-`--follow-symlink, -l` | `false` | _follow symbolic-link. (it affects only when the resursive option specified.)_
-`--force-reload, -f <param>` |  | _regex pattern for file forced to reload the whole page._
-`--broadcast-delay <param>` | `0` | _delay time before broadcasting event (in ms)._
-`--no-default-script` | `false` | _disable default script injection._
-`--inject-file, -I <param>` |  | _the file to be injected into content._
-`--inject-method, -M <param>` | `p` | _specify the injection method [prepend or append]_
-`--inject-match-text, -T <param>` |  | _specify the regex or string pattern for content where to inject_
-`--inject-match-file, -F <param>` |  | _specify the regex pattern for file where to inject._
-`--version, -V` |  | _show version_
-`--help, -h` |  | _show help_
+`--follow-symlinks, -l` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
+`--broadcast-delay` | `0` | _delay time of broadcasting event (in ms)._
+`--inject.content` | `` | _injects specified content._
+`--inject.type` | `file` | _type of "inject.content"._
+`--inject.which` | `**/*.{php,htm,html,cgi,pl,rb}` | _specify regex pattern for injection target._
+`--inject.where` | `</(body|head|html)>` | _specify regex string where to inject._
+`--inject.prepend` | `true` | _injection method. ('prepend' or 'append')_
+`--help, -h` | `false` | _show help_
+`--version, -V` | `false` | _show version_
 
 
 
@@ -65,16 +73,16 @@ var launcher = require('simple-autoreload-server');
 
 var server = launcher({
   port: 8008,
-  root: './',
+  path: './',
   listDirectory: true,
-  watch: /\.(png|js|html|json|swf)$/i,
-  forceReload: [/\.json$/i, "static.swf"]
+  watch:  "*.{png,js,html,json,swf}"
+  reload: "{*.json,static.swf}"
 });
 ```
 
 #### Options
 
-See 'src/lib/options.ls' for details of options.
+See 'src/lib/option-list.ls' for details of options.
 
 
 Version

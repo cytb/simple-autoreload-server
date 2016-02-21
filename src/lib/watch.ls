@@ -2,79 +2,68 @@
 require! {
   fs
   path
-  \./utils
 }
-
-{flatten,visit-dir} = utils
 
 class RecursiveWatcher
   ({
-    @root,
+    @path,
     @delay=5ms,
-    @on-change=(->),
-    @on-error=(->),
+    @update=(->),
+    @error=(->),
     @recursive=false,
-    @follow-symlink=false
+    @follow-symlinks=false
   })->
-
-    if @follow-symlink
-      filter = ({stat})->
-        stat.is-directory!
-    else
-      filter = ({stat})->
-        stat.is-directory! and
-          (not stat.is-symbolic-link!)
-
-    param = {
-      dirpath:  @root
-      filter
-      on-error: (ex)~>
-        @on-error ex, @root
-    }
-
-    @dirs = if @recursive
-      then flatten (visit-dir param)
-      else [@root]
-
     @watchers = []
 
-  start: ({@on-change=@on-change,@on-error=@on-error}={})->
+  find-dir: (root)->
+    dirs  = []
+    queue = [root]
+
+    while dir = queue.shift!
+      dirs.push dir
+
+      for file in fs.readdir-sync dir => try
+        full-path = path.join dir, file
+        node      = fs.lstat-sync full-path
+        continue if (not node.is-directory!) or
+          (node.is-symbolic-link! and not @follow-symlinks)
+
+        queue.push full-path
+      catch ex
+        @error ex
+
+    dirs
+
+  start: ({@update=@update,@error=@error}={})->
     @stop!
 
-    self = @
     sessions = {}
 
-    get-handler-change = (dir)->
-      (type,file)->
-        return if not (file? and dir?)
+    dirs = @recursive and @find-dir @path or [@path]
 
-        long-path = path.join dir, file
-        session   = sessions[long-path]
+    @watchers = dirs .map (dir)~>
+      fs.watch dir
+      .on \error,  @~error
+      .on \change, (type,name)~>
 
-        on-expired = ->
-          delete sessions[long-path]
-          self.on-change type, long-path
+        file = path.join dir, name
 
-        if session?
-          return if session.expire > Date.now!
-          clear-timeout session.timer
+        {timer,time-stamp} = sessions[file] ?= {time-stamp: Date.now!}
 
-        sessions[long-path] =
-          expire: Date.now! + self.delay
-          timer: set-timeout on-expired, self.delay
+        clear-timeout timer if timer?
 
-    get-handler-error = (dir)->
-      (err)-> self.on-error err, dir
+        expired = ~>
+          delete sessions[file]
+          @update type, file
 
-    @watchers = @dirs.map ->
-      fs.watch it
-      .on \change, get-handler-change it
-      .on \error,  get-handler-error  it
+        time = @delay - (Date.now! - time-stamp)
+        sessions[file].timer = set-timeout expired, time
 
   stop: ->
     @watchers.for-each (.close!)
+    @watchers = []
 
-module.exports = ({root,on-change,delay}:opts)->
-  new RecursiveWatcher opts
+export
+  RecursiveWatcher
 
 # w.start!

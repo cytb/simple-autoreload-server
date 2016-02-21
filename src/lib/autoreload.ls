@@ -1,301 +1,267 @@
 
 require! {
   http
-  \connect-static-transform
-  connect
-  colors
+  https
+  fs
   path
   child_process
+
   opener
-  \./utils
-  \./watch
+  connect
+  colors
+  'connect-static-transform': static-transform
+  'faye-websocket': WebSocket
+
+  './watch':  {RecursiveWatcher}
+  './option': {OptionHelper}
 }
 
-WebSocket = require \faye-websocket
-m-options = require \./options
+class Injecter
+  ({@content,@ignore-case,@type,@which,@where,@prepend})->
+    @file-matcher = OptionHelper.read-pattern do
+        @which, @ignore-case
 
-def-options = m-options.default-module-options
+    if @where instanceof RegExp
+      @content-regex = @where
+    else
+      flag = @ignore-case is false and "" or "i"
+      @content-regex = new RegExp @where, flag
 
-# utils
-{flatten,regex-clone,new-copy,get-logger,create-connect-stack} = utils
+    @length-of = if @prepend then (-> 0) else (.length)
+    @get-code = match @type
+      | "raw"  => -> @content
+      | "file" => @@@get-cached-loader process.cwd!, @content
+      | _      => -> @content
 
-module.exports = (options)->
-  ars-obj = new SimpleAutoreloadServer options
-    ..init!
-    ..start!
+  is-target: ->
+    @file-matcher it
+
+  match-content: ->
+    @content-regex.exec it
+
+  inject: (file, text)->
+    if (@is-target file) and (m = @match-content text)
+      pos  = m.index + @length-of m.0
+      text = "#{text.slice 0,pos}#{@get-code!}#{text.slice pos}"
+    text
+
+  @get-cached-loader = (base,file,enc='utf8')->
+    last   = null
+    p      = path.resolve base, file
+    cached = ""
+    ->
+      {mtime} = fs.stat-sync p
+      if last isnt mtime
+        cached := fs.read-file-sync p, {encoding:enc}
+        cached := cached.to-string!
+        last   := mtime
+
+      cached
+
+  @create = -> new Injecter it
 
 # Main class
 class SimpleAutoreloadServer
-  open-default = ->
-    opener it, {stdio: \ignore} .unref!
 
-  get-tagged-logger = (color,prefix="")->
-    (tag,...texts)->
-        @log-impl.apply @, ( ["#{prefix}#{tag}"[color]] ++ texts )
+  @log-prefix = (host)->
+    "[autoreload \##{process.pid} #host]".cyan
 
-  (options={})->
-    @living-sockets = []
+  (option={})->
+    @websockets = []
+    @running = no
 
-    @log-impl = get-logger ~>
-      @@log-prefix "localhost:#{@options.port}"
+    @options = OptionHelper.setup ({} <<< option)
 
-    @normal-log = get-tagged-logger 'green'
-    @error-log  = get-tagged-logger 'red', 'error@'
-    @verb-log   = (->)
+  log: (mode, tag, text)->
 
-    @set-options options
-    @running = false
+    return if (mode is \verbose) and not @options.verbose
 
-  set-options: (options-arg={})->
-    options = new-copy options-arg, def-options
+    colored-tag = match mode
+    | \error   => "error@#tag".red
+    | \normal  => tag.green
+    | \verbose => tag.green
+    | _        => tag.green
 
-    # check onmessage
-    if \function isnt typeof options.onmessage
-      options.onmessage = (->)
+    prefix = @@@log-prefix "localhost:#{@options.port}"
 
-    # set logger state
-    if options.verbose
-      @verb-log = @normal-log
-
-    @options = options
-
+    console.log "#prefix #colored-tag #text"
 
   stop: ->
     try
       @watcher?.stop!
       @server?.close!
 
-      @running = false
-      @normal-log "server", "stopped."
-    catch e
-      @error-log "server", e.message
+      @running = no
 
-  start: ->
+      @log "normal", "server", "stopped."
+
+    catch ex
+      @log "error",  "server", ex.message
+
+  start: (done)->
     try
       @stop! if @running
-      @watcher.start!
-    catch e
-      @error-log "server", e.message
 
+      dirs = for [@options with {target:"/"}] ++ (@options.mount ? [])
+        .. with {path:path.resolve ..path}
 
-    port = @options.port
-    root = @options.root
+      @watchers = @create-watchers dirs
+      @server   = @create-server   dirs
 
-    s-port = port.to-string!green
-    s-root = root.to-string!green
+      @watchers.map (.start!)
+
+    catch ex
+      @log "error", "server", ex.message
+      @log "error", "server", ex.stack
+      if done?
+        done ex, @
+      return null
+
+    listen = @options{port,host,path}
 
     @server
-      .on \upgrade, @create-upgrade-listerner!
-      .on \error, (err)~>
-        if err.code is \EADDRINUSE
-          @error-log \server,
-            "Cannot use :#s-port as a listen address.",
-            "Error:", err.message
+      ..on \upgrade, (req, sock, head)~>
+        return unless WebSocket.is-web-socket req
 
-          @watcher.stop!
+        addr = "#{sock.remote-address}:#{sock.remote-port}"
 
-      .listen port, ~>
-        @running = true
-        @normal-log "server", "started on :#s-port at #root"
+        new WebSocket req, sock, head
+          ..on \open, ~>
+            @log "verbose", \websocket, "#addr - new connection"
+            ..send JSON.stringify {type:\open, log:@options.client-log}
+
+          ..on \message, ({data})~>
+            @log "verbose", \websocket, "#addr - received message #data"
+            @options.onmessage data, ..
+
+          ..on \close, ~>
+            @log "verbose", \websocket, "#addr - connection closed"
+            @websockets .= filter (isnt ..)
+
+          @websockets.push ..
+
+      ..on \error, (err)~> match err.code
+        | \EADDRINUSE =>
+          @log "error", \server, "
+            Cannot use #{"#{listen.host}".green}:#{"#{listen.port}".green} as a listen address. Error: #{err.message}
+          "
+          @watchers.map (.stop!)
+
+      ..listen (listen.port .|. 0), listen.host, 511, ~>
+        @running = yes
+        @log "normal", "server", "started on :#{"#{listen.port}".green} at #{listen.path}"
 
         if @options.execute?
-          @verb-log "server", "execute command: #{that}"
+          @log "verbose", "server", "execute command: #{that}"
           child = child_process.exec that, {stdio: \ignore}
-          child.unref!
+            ..unref!
 
           if @options.stop-on-exit
-            @verb-log "server", "server will stop when the command has exit."
+            @log "verbose", "server", "server will stop when the command has exit."
             child.on \exit, ~>
-              @normal-log "server", "child command has finished."
+              @log "normal", "server", "child command has finished."
               @stop!
 
         if @options.browse
           {port,address} = @server.address!
 
-          if address is "0.0.0.0"
-            address = "localhost"
+          if address is <[ 0.0.0.0 :: ]>
+            address := "localhost"
 
-          server-url = "http://#{address}:#{port}/"
-          @verb-log "server", "open #server-url"
-          open-default server-url
+          server-url = switch typeof @options.browse
+            | "string" => @options.browse
+            | _        => "http://#{address}:#{port}/"
 
-  init: ->
-    @watcher = @create-watcher!
-    @server  = @create-server!
+          @log "verbose", "server", "open #server-url"
+          opener server-url, {stdio: \ignore} .unref!
 
-  create-upgrade-listerner: ->
-    return (req, sock, head)~>
-      return unless WebSocket.is-web-socket req
-
-      addr = "#{sock.remote-address}:#{sock.remote-port}"
-      verb-log-ws = (~>@verb-log \websocket, addr, "-", it)
-
-      websock = new WebSocket req, sock, head
-
-      websock
-      .on \open, ~>
-        verb-log-ws "new connection"
-        websock.send JSON.stringify {type:\open, -client, log:@options.client-log}
-
-      .on \message, ({data})~>
-        verb-log-ws "received message", data
-        @options.onmessage data, websock
-
-      .on \close, ~>
-        verb-log-ws "connection closed"
-        @living-sockets .= filter (isnt websock)
-      |> @living-sockets.push
+        if done?
+          done null, @
 
   # Create watch
-  create-watcher: ->
+  create-watchers: (dirs)->
 
     # show notes
     if @options.recursive
-      @verb-log "server", "init with recursive-option. this may take a while."
+      @log "verbose", "server", "init with recursive-option. this may take a while."
 
-    root     = @options.root
-    self     = this
+    should-reload = OptionHelper.read-pattern @options.reload, @options.ignore-case
 
-    do-reload = @@@create-reload-matcher @options.force-reload
+    # create watch array
+    watch-objs = dirs.map (dir)~>
+      matcher = OptionHelper.read-pattern dir.watch, dir.ignore-case
 
-    # Watch
-    watch-obj = watch do
-      root:           root
-      delay:          @options.watch-delay
-      recursive:      @options.recursive
-      follow-symlink: @options.follow-symlink
-      on-error:(error,dir-path)->
-        self.error-log "watch", dir-path, "Error:", error.message
+      new RecursiveWatcher dir with do
+        delay: @options.watch-delay
+        error: ({message},src)~> @log "error", "watch", "#src Error: #message"
+        update:(,target)~>
+          if not matcher target
+            @log "verbose", "watch", "#{"(ignored)".cyan} #target"
+          else
+            @log "normal", "watch", "updated #target"
+            http-path = ''
+            try if (path.relative dir.path, target) is /^[^/].*$/
+              http-path := "/#{that.0}"
 
-      on-change:(ev,source-path)->
-        matcher = ->
-          typeof! it is \RegExp and it.test source-path
-
-        unless flatten [ self.options.watch ] .some matcher
-        then
-          self.verb-log "watch", "(ignored)".cyan, source-path
-          return
-
-        self.normal-log "watch", "updated", source-path
-
-        http-path = (do
-          try
-            relative-path = path.relative root, source-path
-
-            # returning '' if it is outer
-            relative-path isnt /^\// and "/#relative-path" or ''
-          catch
-             ''
-        )
-
-        self.broadcast do
-          type:\update
-          path:http-path
-          force-reload: do-reload http-path
+            @broadcast do
+              type:   \update
+              path:   http-path
+              reload: should-reload http-path
 
     # fix Este to catch the error
-    watch-obj
+    watch-objs
 
   # Creating httpd-server
-  create-server: ->
-    root = path.resolve @options.root
+  create-server: (dirs)->
 
-    server =
-      # head of middleware conf
-      * null
+    injects = [] ++ @options.inject
 
-      # logger 
-        @options.verbose and connect.logger ([
-            ":ar-prefix :remote-addr :method"
-            '":url HTTP/:http-version"'
-            ":status :referrer :user-agent"
-        ] * ' ')
+    if @options.builtin-script
+      injects .= concat {
+        which:   "**/*.htm{l,}"
+        where:   new RegExp "</(body|head|html)>", "i"
+        type:    "file"
+        content: path.resolve __dirname, \../client.html
+        +prepend
+      }
 
+    injecters = injects.map Injecter~create
 
-      # script injectors (array)
-        @@create-strans root, @options.inject
+    app = connect!
+    # logger
+    if @options.verbose
+      app.use <| connect.logger '
+        :ar-prefix :remote-addr :method 
+        ":url HTTP/:http-version" 
+        :status :referrer :user-agent
+      '
 
-      # static server
-        @options.list-directory and
-          connect.directory root, icons:true
+    for dirs
+      if @options.list-directory
+        app.use ..target, (connect.directory ..path, {+icons})
 
-        connect.static root
+      app.use ..target, static-transform do
+        match: /^/
+        root: ..path
+        normalize: (path.relative ..target, _)
+        transform: (file, text, send)->
+          send <| injecters.reduce (->&1.inject file, &0), text
 
-      # process array
-      |> flatten
-      |> (.filter Boolean)
-      |> create-connect-stack
-      |> connect! .use
-      |> http.create-server
+      app.use ..target, (connect.static ..path)
 
-    # return
-    server
+    http.create-server app
 
-  broadcast: (
-    message,
-    websockets=@living-sockets,
-    delay=@options.broadcast-delay
-  )->
-    json-data = JSON.stringify message
-
-    <~(set-timeout _, delay)
-    @verb-log "broadcast",
-      "to #{websockets.length} sockets :", json-data
-    websockets.for-each (->it?.send json-data)
-
-  @log-prefix = (host)->
-    pid  = process.pid
-    # root = @options.root
-    "[autoreload \##pid #host]".cyan
-
-  @apply-rec = (obj,func)->
-    match typeof! obj
-    | \Array => flatten obj .map func
-    | _      => [func obj]
-
-  # static methods
-  # create static-transform
-  @create-strans = (root,option-arg)->
-    (option)<- @apply-rec option-arg
-    match typeof! option
-      | \Function =>
-        connect-static-transform do
-          root: root
-          match: /^/ig
-          transform: (file-path, data, send)->
-            send <| option file-path, data
-      | \Object =>
-        optm = new-copy def-options.inject, option
-        index-of = if optm.prepend then (-> 0) else (.length)
-
-        connect-static-transform do
-          root: root
-          match:optm.file
-          transform: (file-path, text, send)->
-            m = (optm.match.exec text) ? {0:text, index:0}
-            i = m.index + index-of m.0
-            S = text~slice
-            send "#{S 0,i}#{option.code}#{S i}"
-      | _ => throw new Error "Unacceptable object: #option"
-
-  # static methods
-  # create static-transform
-  @create-reload-matcher = (option-arg)->
-    if typeof option-arg is \boolean
-      return ->option-arg
-
-    array = @apply-rec option-arg, (option)->
-      match typeof! option
-        | \Function => option
-        | \RegExp   => option~test
-        | \String   => (-> option.index-of it >= 0)
-        | _ => throw new Error 'Unacceptable object: #option'
-
-    # matcher
-    (file-path)-> array.some (->it file-path)
-
+  broadcast: (data)->
+    try
+      json = JSON.stringify data
+      @log "verbose", "broadcast", "to #{@websockets.length} sockets: #{json}"
+      for @websockets => ..send json
+    catch ex
+      @log "error", "broadcast", ex.message
 
 connect.logger.token \ar-prefix, (r)~>
   SimpleAutoreloadServer.log-prefix r.headers.host
   |> (+ " httpd".green)
 
+export
+  SimpleAutoreloadServer

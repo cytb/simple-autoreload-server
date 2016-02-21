@@ -3,23 +3,23 @@ describe "watch module", ->
   before-all (done)->
     @timeout = 2000ms
     require! {
-      \../../lib/watch
-      \../lib/test-utils
       path
+      '../../lib/watch': {RecursiveWatcher}
+      '../lib/test-utils': {update}
     }
 
     @path = path
     @dir = path.join.apply path, ([__dirname] ++ <[
-      .. .. tmp test data fixture watch-test
+      .. .. test data fixture watch-test
     ]>)
 
     @update = ->
-      test-utils.update (path.join @dir, it)
+      update (path.join @dir, it)
 
     @do-watch = (opt,done=->)~>
-      @watcher = watch ({
-        root: @dir
-        on-change: ~>
+      @watcher = new RecursiveWatcher ({
+        path: @dir
+        update: ~>
           @watcher.stop!
           done!
       } <<<< opt)

@@ -12,14 +12,14 @@ describe "websocket server", ->
     @expect = (file,data)~>
       S = JSON~parse
       e   = S( @tester.get-expect-json file )
-      msg = "expects content of the file '#file'"
+      msg = -> "expects content of the file '#file': (#{it})"
 
       if data?
-        assert.match S(data), e, msg
+        assert.match S(data), e, (msg data)
       else
         assert do
           @messages.some -> deep-match S(it), e
-          msg
+          msg @messages
 
     new-tester = ~>
       @tester = new Tester {
@@ -32,8 +32,8 @@ describe "websocket server", ->
     <~ @tester.start-server {
       # +verbose
       port:12565
-      inject: []
-      force-reload: /force-reload$/
+      # inject: []
+      reload: /force-reload$/
       onmessage: (msg,sock)~>
         @messages.push msg
     }
@@ -64,7 +64,7 @@ describe "websocket server", ->
     @expect \update-1
     done!
 
-  It "should send 'update' message with force-reload).", (done)->
+  It "should send 'update' message with reload).", (done)->
     @update "#{@file}-force-reload"
 
     <~ delayed 200ms

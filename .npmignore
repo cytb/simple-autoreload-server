@@ -4,5 +4,5 @@ tmp/
 git-hooks/
 .git*
 .travis*
-Gruntfile.js
+Gulpfile.ls
 .DS_Store
