@@ -30,33 +30,33 @@ option | default | description
 :--- | :--- | :---
 `--path, -d` | `.` | _set directory to publish._
 `--watch, -w` | `**` | _pattern for file to watch._
-`--reload, -R` | `false` | _pattern for file to reload the whole page._
+`--reload, -r` | `false` | _pattern for file to reload the whole page._
 `--mount.path, -m` | `.` | _set additional directory to publish._
-`--mount.target` | `/` | _server path as route target._
-`--mount.watch` | `**` | _pattern for file to watch._
+`--mount.target, -t` | `/` | _server path as route target._
+`--mount.watch, -W` | `**` | _pattern for file to watch._
 `--host, -H` | `0.0.0.0` | _set host address to publish._
 `--port, -p` | `8080` | _set port to listen (http)._
 `--config, -C` | `.autoreload.json` | _load json as config._
 `--list-directory, -l` | `true` | _enable directory listing._
 `--browse, -b` | `false` | _open server url by platform default program._
 `--execute, -e` | `` | _execute command when the server has prepared._
-`--stop-on-exit` | `false` | _exit when invoked process specified by "--execute" died._
+`--stop-on-exit, -k` | `false` | _exit when invoked process specified by "--execute" died._
 `--ignore-case, -i` | `true` | _ignore case of glob patterns._
 `--watch-delay` | `1` | _delay time to supress duplicated watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose logging._
 `--builtin-script` | `true` | _enable default built-in script injection._
 `--client-module` | `true` | _expose client module to 'window' object.  (unimplemented!)_
 `--client-log` | `false` | _inform client to log._
-`--recursive, -r` | `true` | _watch sub-directories recursively. (may take a while at startup)_
-`--follow-symlinks, -l` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
-`--broadcast-delay` | `0` | _delay time of broadcasting event (in ms)._
-`--inject.content` | `` | _injects specified content._
-`--inject.type` | `file` | _type of "inject.content"._
-`--inject.which` | `**/*.{php,htm,html,cgi,pl,rb}` | _specify regex pattern for injection target._
-`--inject.where` | `</(body|head|html)>` | _specify regex string where to inject._
-`--inject.prepend` | `true` | _injection method. ('prepend' or 'append')_
+`--recursive, -R` | `true` | _watch sub-directories recursively. (may take a while at startup)_
+`--follow-symlinks, -L` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
+`--inject.content, -I` | `` | _injects specified content._
+`--inject.type, -T` | `file` | _type of "inject.content"._
+`--inject.which, -F` | `**/*.{php,htm,html,cgi,pl,rb}` | _specify regex pattern for injection target._
+`--inject.where, -P` | `</(body|head|html)>` | _specify regex string where to inject._
+`--inject.append, -A` | `true` | _injection method. ('prepend' or 'append')_
 `--help, -h` | `false` | _show help_
 `--version, -V` | `false` | _show version_
+`--onmessage` |  | _onmessage event handler._
 
 
 

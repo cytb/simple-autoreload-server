@@ -6,7 +6,7 @@ export
         "def":   "."
         "help":  "set directory to publish."
         "desc":  """
-          specifies directory to publish.
+          specifies root directory to publish.
         """
 
       * "label": "watch"
@@ -15,29 +15,19 @@ export
         "def":   "**"
         "help":  "pattern for file to watch."
         "desc":  """
-          pattern for the file to watch.
-
-            it matches any files if passed true function argument
-          or specified command-line option as flag.
-
-            it matches nothing if passed false via function argument
-          or specified command-line option with the negative prefix.
+          pattern for file to watch.
+          if true, it matches any files, and matches nothing on false.
         """
 
       * "label": "reload"
-        "short": "R"
+        "short": "r"
         "type":  "pattern"
         "def":   false
         "help":  "pattern for file to reload the whole page."
         "desc":  """
           pattern for file to reload the whole page.
-          it depends on client script whether or not to reload actually.
-
-          it always matches if passed true via function argument
-          or specified command-line option as flag.
-
-          it matches nothing if passed false via function argument
-          or specified command-line option with negative prefix ('no-').
+          whether or not to reload actually is depends on behavior of client script.
+          if true, it matches any files, and matches nothing on false.
         """
 
       * "label": "mount.path"
@@ -48,29 +38,34 @@ export
         "desc":  """
           specifies additional directory to publish.
 
-          if Array of values or multiple 'mount.path' option on command-line was passed,
-          the server publishes all the specified directories on server-root.
-          and then client request will be processed in same order.
+          it can accept multiple-times in commandline.
+          other 'mount.' options are attached in corresponding order.
         """
         "examples":
           * * "command": "autoreload -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build"
               "result" : """
                 the server publishes content of './html', './node_modules' and './build' at 'https://localhost:8080/'.
                 if all of those directories contain 'index.html' and client requests 'https://localhost:8080/index.html',
-                first one will be sent ('./html/index.html' in this case).
+                the first one will be sent ('./html/index.html' in this case).
               """
 
       * "label": "mount.target"
-        "short": null
+        "short": "t"
         "type":  "string"
         "def":   "/"
         "help":  "server path as route target."
         "desc":  """
           server path as route target.
         """
+        "examples":
+          * * "command": "autoreload . 8080 -m ./www/js -t /components"
+              "result" : """
+                the server publishes content of './' to server-root(http://localhost:8080/),
+                "./www/js" to "/components" (http://localhost:8080/components/).
+              """
 
       * "label": "mount.watch"
-        "short": null
+        "short": "W"
         "type":  "pattern"
         "def":   "**"
         "help":  "pattern for file to watch."
@@ -86,8 +81,6 @@ export
           if Array of values or multiple 'mount.watch' option on command-line was passed,
           the server associates each options to each 'mount.path' in same order.
         """
-
-
 
       * "label": "host"
         "short": "H"
@@ -148,11 +141,11 @@ export
         "examples":
           * * "command": "autoreload -d . -p 8088 -H 192.168.1.15 -b"
               "result":  "opens https://192.168.1.15:8088/"
-            * "command": 'autoreload --no-ssl -d . -p 8088 -b "http://server1.localdomain:80/"'
+            * "command": 'autoreload -d . -p 8088 -b "http://server1.localdomain:80/"'
               "result":  'opens "http://server1.localdomain:80/"'
 
       * "label": "execute"
-        "short": \e
+        "short": "e"
         "type":  "string"
         "def":   ""
         "help":  "execute command when the server has prepared."
@@ -170,7 +163,7 @@ export
               "result":  "opens firefox via shell"
 
       * "label": "stop-on-exit"
-        "short": null
+        "short": "k"
         "type":  "boolean"
         "def":   false
         "help":  "exit when invoked process specified by \"--execute\" died."
@@ -232,17 +225,15 @@ export
         "def":   true
         "help":  "expose client module to 'window' object.  (unimplemented!)"
         "desc":  """
-          (unimplemented!)
           expose client module to 'window' object.
-
           if you want to use client module in built-in script, set true or String value.
 
-          if specified true, module will be exposed to 'window.AutoreloadClient'.
-          if String,         module will be exposed in window with specified value.
+          if true,   module will be exposed to 'window.AutoreloadClient'.
+          if String, module will be exposed in window with specified value.
 
-          this option does nothing when 'builtin-script' is disabled.
-          when the module is initialized, it emits the '*.ready' event on 'window'.
-          the name of event-id depends on this option. (e.g. default is 'AutoreloadClient.ready')
+          this option does nothing when 'builtin-script' is false.
+          when the module is initialized, it emits the 'AutoreloadClient.*' events on 'window'.
+          see 'examples/client-module/'.
         """
 
       * "label": "client-log"
@@ -253,92 +244,78 @@ export
         "desc":  """
           inform client to log.
           the server only send a option to client on connect by this option.
-          it is depends on client script whether or not to logs actually.
+          whether or not to logs actually is depends on behavior of client script.
         """
 
       * "label": "recursive"
-        "short": "r"
+        "short": "R"
         "type":  "boolean"
         "def":   true
         "help":  "watch sub-directories recursively. (may take a while at startup)"
         "desc":  """
           watch sub-directories recursively.
-          it may take a while at startup.
-
           the server does not detect cyclic structure and it may cause infinit loop.
           unset follow-symlinks option if need.
         """
 
       * "label": "follow-symlinks"
-        "short": "l"
+        "short": "L"
         "type":  "boolean"
         "def":   false
         "help":  "follow symbolic-links. (it affects only when the resursive option specified.)"
         "desc":  """
-          lookup files on symbolic-links when watch directory. 
+          lookup files in symbolic-links target when watch directory. 
           it affects only when the resursive option specified.
         """
 
-      * "label": "broadcast-delay"
-        "short": null
-        "type":  "string"
-        "def":   0ms
-        "help":  "delay time of broadcasting event (in ms)."
-        "desc":  """
-          delay time of broadcasting event (in ms).
-        """
-
-
       * "label": "inject.content"
-        "short": null
+        "short": "I"
         "type":  "string"
         "def":   ""
         "help":  "injects specified content."
         "desc":  """
-          injects specified content.
-          the behavior of this option depends on 'inject.raw'.
+          injects specified content.  see 'inject.type'.
         """
 
       * "label": "inject.type"
-        "short": null
+        "short": "T"
         "type":  "string"
         "def":   "file"
         "help":  'type of "inject.content".'
         "desc":  """
           specifies type of 'inject.content' option.
-
-          file: treat 'inject.content' as file path.
-          raw:  'inject.content' will be injected directly.
+          'file': treat 'inject.content' as file path.
+          'raw':  'inject.content' will be injected directly.
         """
 
       * "label": "inject.which"
-        "short": null
+        "short": "F"
         "type":  "pattern"
         "def":   "**/*.{php,htm,html,cgi,pl,rb}"
         "help":  "specify regex pattern for injection target."
         "desc":  """
-          injects specified file.
+          specify regex pattern for injection target.
         """
 
       * "label": "inject.where"
-        "short": null
+        "short": "P"
         "type":  "string"
         "def":   "</(body|head|html)>"
         "help":  "specify regex string where to inject."
         "desc":  """
+          this is not a 'pattern' type.
           specify regex string where to inject.
+          content will be injected before matched string.
         """
 
-      * "label": "inject.prepend"
-        "short": null
-        "type":  "string"
+      * "label": "inject.append"
+        "short": "A"
+        "type":  "boolean"
         "def":   true
         "help":  "injection method. ('prepend' or 'append')"
         "desc":  """
-          specifies injection method.
-
-          'prepend' inserts content before 'where' matched.
-          'append'  inserts content after 'where' matched.
+          change injection method to append.
+          if true, content will be injected 'after' matched string.
         """
 
       * "label": "help"
@@ -347,8 +324,8 @@ export
         "def":   false
         "help":  "show help"
         "desc":  """
-          shows help and exit.
-          ignored if it was apeared on json or function arguments.
+          show help and exit.
+          ignored if it was appeared on json or function arguments.
         """
 
       * "label": "version"
@@ -358,7 +335,18 @@ export
         "help":  "show version"
         "desc":  """
           shows version.
-          ignored if it was apeared on json or function arguments.
+          ignored if it was appeared on json or function arguments.
         """
+
+      * "label": "onmessage"
+        "short": null
+        "type":  "function"
+        "def":   null
+        "help":  "onmessage event handler."
+        "desc":  """
+          specifies server onmessage handler.
+          server calls this functoin on broadcast the message.
+        """
+        "nocli": true
 
 
