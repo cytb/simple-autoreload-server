@@ -37,6 +37,7 @@ option | default | description
 `--host, -H` | `0.0.0.0` | _set host address to publish._
 `--port, -p` | `8080` | _set port to listen (http)._
 `--config, -C` | `.autoreload.json` | _load json as config._
+`--search-config` | `true` | _search for config json in parent directories._
 `--list-directory, -l` | `true` | _enable directory listing._
 `--browse, -b` | `false` | _open server url by platform default program._
 `--execute, -e` | `` | _execute command when the server has prepared._

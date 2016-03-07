@@ -30,6 +30,7 @@ option | default | description
 :--- | :--- | :---
 <%
   options.forEach(function(opt){
+    if( opt.nocmd ){ return; }
     var option = ("--"+opt.label) + (opt.short ? (", -"+opt.short) : "");
     var def    = (opt.def != null) ? ('`' + opt.def + '`') : '';
     var help   = opt.help;

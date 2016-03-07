@@ -1,5 +1,6 @@
 require! {
   minimatch:{Minimatch}
+  path
 }
 
 is-array = (instanceof Array)
@@ -77,7 +78,7 @@ class OptionHelper
     defaults = {}
     defaults-src =
       mount:  <[ watch recursive followSymlinks ignoreCase ]>
-      inject: <[ where which type ]>
+      inject: <[ where which type append ]>
 
     for key,names of defaults-src
       base = (defaults[key] ?= {})
@@ -86,26 +87,34 @@ class OptionHelper
 
     options = option-helper.assure options, defaults
     base = {}
-    try
+    # json
+    json = null
+    dir  = process.cwd!
+    if options.search-config
       pre-file = file = null
-      dir = process.cwd!
       do
         pre-file = file
-        file     = path.resolve dir, @options.config
+        file     = path.resolve dir, options.config
         try
-          content  = fs.read-file-sync file, {encoding:'UTF-8'}
-          json     = JSON.parse content.to-string!
-        catch e
-          "ignored"
+          fs.read-file-sync file, {encoding:'UTF-8'}
+            json := JSON.parse ..to-string!
 
         dir = path.join dir, ".."
       while (not json?) and (pre-file isnt file)
 
-      base := json ? {}
-    catch e
-      "ignored"
-
+    base := json ? {}
     out = option-helper.assure (base <<<< options), defaults
+
+    if not out.inject? or out.inject.length < 1
+      if not json?
+        dir = process.cwd!
+      out.inject = []
+      try
+        path.resolve dir, '.autoreload.html'
+          out.inject.push {
+            content:fs. read-file-sync .., {encoding:'UTF-8'}
+          }
+      out := option-helper.assure out, defaults
 
     # check onmessage
     if out.onmessage not instanceof Function

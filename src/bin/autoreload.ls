@@ -27,7 +27,8 @@ do ->
 
       Options:
     """
-    for {label,short,type,help,def} in helper.options-list
+    for {label,short,type,help,def,nocmd} in helper.options-list
+      continue if nocmd
       param  = if (type isnt \boolean) then " <#{type}>" else ""
       shortp = if short? then ", -#{short}" else ""
       defp   = if def?   then "(default: #{def})" else ""

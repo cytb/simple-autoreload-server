@@ -113,6 +113,16 @@ export
           the server inform when the config does not exist except for default location.
         """
 
+      * "label": "search-config"
+        "short": null
+        "type":  "boolean"
+        "def":   true
+        "help":  "search for config json in parent directories."
+        "desc":  """
+          search for config file in parent directories.
+          it is no harm when specified absolute path.
+        """
+
       * "label": "list-directory"
         "short": "l"
         "type":  "boolean"
@@ -274,7 +284,10 @@ export
         "def":   ""
         "help":  "injects specified content."
         "desc":  """
-          injects specified content.  see 'inject.type'.
+          injects specified content. see also: 'inject.type'.
+          if no inject.content options are provided,
+          and the file '.autoreload.html' exists in current directory
+          (or config json directory), server try to inject as a builtin-script.
         """
 
       * "label": "inject.type"

@@ -127,8 +127,8 @@ task do
       gulp-rename 'README.md'
       gulp.dest './'
 
-  "build:src": <[ build:lib build:bin build:client ]>
-  "build:all": <[ build:src build:doc ]>
+  "build:src":     <[ build:lib build:bin build:client ]>
+  "build:release": <[ build:src build:doc ]>
 
   "buster-js": pipe-line ->
     * gulp.src <[ test/tests/*.test.js ]>
@@ -138,8 +138,8 @@ task do
         environment:  \node
         test-helpers: <[ test/helper/autoreload.js ]>
 
-  "test":     gulp.series <[ clean:test build:test copy:test-data buster-js ]>
-  "release":  gulp.series <[ build:all test clean:test ]>
+  "test":     gulp.series <[ build:release clean:test build:test copy:test-data buster-js ]>
+  "release":  gulp.series <[ test clean:test ]>
 
   "release-npm": gulp.series <[ release ]>
   "release-git": gulp.series <[ release clean:all  ]>

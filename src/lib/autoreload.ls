@@ -17,7 +17,7 @@ require! {
 }
 
 class Injecter
-  ({@content,@ignore-case,@type,@which,@where,@prepend})->
+  ({@content,@ignore-case,@type,@which,@where,@append})->
     @file-matcher = OptionHelper.read-pattern do
         @which, @ignore-case
 
@@ -27,8 +27,8 @@ class Injecter
       flag = @ignore-case is false and "" or "i"
       @content-regex = new RegExp @where, flag
 
-    @length-of = if @prepend then (-> 0) else (.length)
-    @get-code = match @type
+    @length-of = @append and (.length) or (->0)
+    @get-code  = match @type
       | "raw"  => -> @content
       | "file" => @@@get-cached-loader process.cwd!, @content
       | _      => -> @content
@@ -222,7 +222,7 @@ class SimpleAutoreloadServer
         where:   new RegExp "</(body|head|html)>", "i"
         type:    "file"
         content: path.resolve __dirname, \../client.html
-        +prepend
+        +append
       }
 
     injecters = injects.map Injecter~create
