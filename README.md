@@ -93,7 +93,7 @@ See [Options.md](./Options.md) for details.
 
 Version
 ----
-0.0.22-0
+0.1.0-1
 
 Installation
 --------------

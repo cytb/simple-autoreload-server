@@ -1,7 +1,7 @@
 {
   "name": "simple-autoreload-server",
   "description": "Simple Web Server with live/autoreload features without browser extensions.",
-  "version": "0.0.22-0",
+  "version": "0.1.0-1",
   "homepage": "https://github.com/cytb/simple-autoreload-server",
   "author": {
     "name": "cytb",
@@ -53,10 +53,10 @@
   },
   "main": "index.js",
   "scripts": {
-    "prepublish": "gulp release --force && npm prune",
+    "prepublish": "gulp release-npm --force && npm prune",
     "test": "gulp test --force",
     "version": "gulp build:document && git add .",
-    "postversion": "git tag -f alpha && git push && git push --tags"
+    "postversion": "git tag -f alpha && git push && git push --delete origin alpha && git push --tags"
   },
   "engines": {
     "node": ">=0.8.0"
