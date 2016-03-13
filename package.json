@@ -53,7 +53,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "prepublish": "gulp release --force && npm prune",
+    "prepublish": "gulp release-npm --force && npm prune",
     "test": "gulp test --force",
     "version": "gulp build:document && git add .",
     "postversion": "git tag -f alpha && git push && git push --tags"
