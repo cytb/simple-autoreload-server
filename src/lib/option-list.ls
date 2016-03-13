@@ -96,12 +96,14 @@ export
         "short": "c"
         "type":  "string"
         "def":   ".autoreload.json"
-        "help":  "load json as config."
+        "help":  "load options from json."
         "desc":  """
-          load options from specific json before starting server.
-          these options are overwritten by command-line options and function arguments.
+          load json as config before starting server.
+          the config overwritten by command-line options and function arguments.
+          all of specified pathes regarded as relative path from config location.
+          (function arguments, and command-line parameters as well.)
 
-          the server inform when the config does not exist except for default location.
+          the server logs nothing when the default config does not exist.
         """
 
       * "label": "search-config"
@@ -167,7 +169,7 @@ export
         "short": "k"
         "type":  "boolean"
         "def":   false
-        "help":  "exit when invoked process specified by \"--execute\" died."
+        "help":  "exit when invoked process specified by \"execute\" died."
         "desc":  """
           the server will stop when invoked process specified by 'execute' option died.
           if there are multiple processes invoked by 'execute' option,
@@ -182,8 +184,7 @@ export
         "desc":  """
           ignoring case of glob-string of patterns.
 
-          this option has no effect on regex pattern of 'pattern' type.
-
+          this option is no harm to regex pattern of 'pattern' type.
           all of the glob patterns that were passed as 'String' type
           via function arguments or command-line option will be affected.
         """
@@ -192,9 +193,9 @@ export
         "short": "n"
         "type":  "boolean"
         "def":   false
-        "help":  "include hidden files (dot files)."
+        "help":  "glob includes hidden files."
         "desc":  """
-          include hidden files (dot files).
+          make globs to include hidden (dot) files.
           this option is no harm except for glob string patterns.
         """
 
@@ -219,11 +220,11 @@ export
       * "label": "watch-delay"
         "short": null
         "type":  "number"
-        "def":   1ms
-        "help":  "delay time to supress duplicated watch event (in ms)."
+        "def":   20ms
+        "help":  "delay time to supress duplicate watch event (in ms)."
         "desc":  """
-          delay time to supress duplicated watch event.
-          the watch event is fired multiple times sometimes.
+          delay time to supress duplicate watch event.
+          (the watch event is often fired multiple times in short duration.)
         """
 
       * "label": "verbose"
@@ -252,17 +253,17 @@ export
         "short": null
         "type":  "string"
         "def":   true
-        "help":  "expose client module to 'window' object.  (unimplemented!)"
+        "help":  "expose client module to 'window' object."
         "desc":  """
-          expose client module to 'window' object.
+          expose client side built-in module to 'window' object.
           if you want to use client module in built-in script, set true or String value.
 
-          if true,   module will be exposed to 'window.AutoreloadClient'.
-          if String, module will be exposed in window with specified value.
+          If true,   module will be exposed to 'window.AutoreloadClient'.
+          If String, module will be exposed in window with specified name.
 
-          this option does nothing when 'builtin-script' is false.
+          This option does nothing when 'builtin-script' is false.
           when the module is initialized, it emits the 'AutoreloadClient.*' events on 'window'.
-          see 'examples/client-module/'.
+          see 'examples'.
         """
 
       * "label": "client-log"

@@ -11,9 +11,10 @@ string
 ---
 parsed as string itself. this option can be specified multiple times on commandline,
 and an array of string passed to module.
+
 (e.g. --option a --option b => [ "a", "b" ])
 
-which value is chosen is depends on the option.
+It is depends on the option that which value is chosen.
 
 number
 ---
@@ -21,9 +22,8 @@ parsed as number itself.
 
 boolean
 ---
-as boolean. don't pass additional parameter.
-if you want set 'false' to option on commandline,
-add natgation prefix  'no' or 'without'
+parsed as boolean. don't pass additional parameter.
+if you want set 'false' to option on commandline, add nagation prefix ('no' or 'without')
 (e.g. --no-option, --without-option)
 
 pattern

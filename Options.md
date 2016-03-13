@@ -11,9 +11,10 @@ string
 ---
 parsed as string itself. this option can be specified multiple times on commandline,
 and an array of string passed to module.
+
 (e.g. --option a --option b => [ "a", "b" ])
 
-which value is chosen is depends on the option.
+It is depends on the option that which value is chosen.
 
 number
 ---
@@ -21,9 +22,8 @@ parsed as number itself.
 
 boolean
 ---
-as boolean. don't pass additional parameter.
-if you want set 'false' to option on commandline,
-add natgation prefix  'no' or 'without'
+parsed as boolean. don't pass additional parameter.
+if you want set 'false' to option on commandline, add nagation prefix ('no' or 'without')
 (e.g. --no-option, --without-option)
 
 pattern
@@ -229,10 +229,12 @@ specifies server http(s) port to listen.
 config 
 ---
 
-load options from specific json before starting server.
-these options are overwritten by command-line options and function arguments.
+load json as config before starting server.
+the config overwritten by command-line options and function arguments.
+all of specified pathes regarded as relative path from config location.
+(function arguments, and command-line parameters as well.)
 
-the server inform when the config does not exist except for default location.
+the server logs nothing when the default config does not exist.
 
 |option||
 |:---|:---|
@@ -378,8 +380,7 @@ ignore-case
 
 ignoring case of glob-string of patterns.
 
-this option has no effect on regex pattern of 'pattern' type.
-
+this option is no harm to regex pattern of 'pattern' type.
 all of the glob patterns that were passed as 'String' type
 via function arguments or command-line option will be affected.
 
@@ -399,7 +400,7 @@ via function arguments or command-line option will be affected.
 include-hidden 
 ---
 
-include hidden files (dot files).
+make globs to include hidden (dot) files.
 this option is no harm except for glob string patterns.
 
 |option||
@@ -454,8 +455,8 @@ encoding for reading texts and inject target files
 watch-delay 
 ---
 
-delay time to supress duplicated watch event.
-the watch event is fired multiple times sometimes.
+delay time to supress duplicate watch event.
+(the watch event is often fired multiple times in short duration.)
 
 |option||
 |:---|:---|
@@ -463,7 +464,7 @@ the watch event is fired multiple times sometimes.
 |short-flag| (none)|
 |module| watchDelay|
 |type| number
-|default| 1|
+|default| 20|
 
 
 
@@ -513,15 +514,15 @@ and use 'inject' option.
 client-module 
 ---
 
-expose client module to 'window' object.
+expose client side built-in module to 'window' object.
 if you want to use client module in built-in script, set true or String value.
 
-if true,   module will be exposed to 'window.AutoreloadClient'.
-if String, module will be exposed in window with specified value.
+If true,   module will be exposed to 'window.AutoreloadClient'.
+If String, module will be exposed in window with specified name.
 
-this option does nothing when 'builtin-script' is false.
+This option does nothing when 'builtin-script' is false.
 when the module is initialized, it emits the 'AutoreloadClient.*' events on 'window'.
-see 'examples/client-module/'.
+see 'examples'.
 
 |option||
 |:---|:---|
