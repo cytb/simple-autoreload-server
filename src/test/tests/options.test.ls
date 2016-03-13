@@ -58,6 +58,10 @@ describe "option helper", ->
 
     assert.equals typeof assured.port, "number",     "port should be a number"
     assert.equals assured.port, 100,                 "port should be a last option"
+
+    assured.watch  = OptionHelper.read-pattern assured.watch
+    assured.reload = OptionHelper.read-pattern assured.reload
+
     assert.equals typeof assured.watch, "function",  "assured pattern should be a function"
     assert.equals typeof assured.reload, "function", "assured pattern should be a function"
     assert        (assured.reload null),             "assured pattern with boolean always return that"
@@ -76,6 +80,9 @@ describe "option helper", ->
     }
     assured = opt.assure parsed
 
+    assured.watch  = OptionHelper.read-pattern assured.watch
+    assured.reload = OptionHelper.read-pattern assured.reload
+
     assert.equals typeof assured.watch, "function",  "assured pattern should be a function"
     assert.equals assured.watch, parsed.watch,       "assured pattern with function should be a function itself"
     assert.equals typeof assured.reload, "function", "assured pattern should be a function"
@@ -85,6 +92,9 @@ describe "option helper", ->
 
     opt = new OptionHelper option-list
     assured = opt.assure {}
+
+    assured.watch  = OptionHelper.read-pattern assured.watch
+    assured.reload = OptionHelper.read-pattern assured.reload
 
     assert.equals assured.port,  80,             "assured undefined number should be a default number"
     assert        assured.watch  "tes.watched",  "assured undefined pattern should be a default pattern"

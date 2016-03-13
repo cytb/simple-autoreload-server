@@ -2,7 +2,7 @@
 
 module.exports = do ->
   require! {
-    'lib/autoreload'
+    './lib/autoreload'
   }
 
   exports = ->

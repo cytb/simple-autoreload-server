@@ -27,17 +27,19 @@ do ->
 
       Options:
     """
-    for {label,short,type,help,def,nocmd} in helper.options-list
-      continue if nocmd
+    for {label,short,type,help,def,nocli} in helper.option-list
+      continue if nocli
       param  = if (type isnt \boolean) then " <#{type}>" else ""
-      shortp = if short? then ", -#{short}" else ""
-      defp   = if def?   then "(default: #{def})" else ""
+      shortp = if short? then ",-#{short}" else ""
+      defp   = if def?   then " (default:'#{def}')" else ""
       defp   = if (type is <[ string regexp ]>) then "\"#{defp}\"" else defp
 
-      console.log """
-        --#{label} #{shortp} #{param} #{defp}
-          #{help}
-      """
+      pre = "--#{label}#{shortp}"
+      pre = pre + (" " * 20).slice (pre.length)
+
+      console.log "  #{pre} #{help}#{defp}"
+
+    console.log ""
 
   if parsed.help or parsed.version
     process.exit!

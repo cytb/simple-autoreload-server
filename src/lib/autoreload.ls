@@ -9,7 +9,6 @@ require! {
   opener
   connect
   colors
-  'connect-static-transform': static-transform
   'faye-websocket': WebSocket
 
   './watch':  {RecursiveWatcher}
@@ -17,9 +16,9 @@ require! {
 }
 
 class Injecter
-  ({@content,@ignore-case,@type,@which,@where,@append})->
+  ({@content,@ignore-case,@type,@which,@where,@prepend,@include-hidden,@encoding})->
     @file-matcher = OptionHelper.read-pattern do
-        @which, @ignore-case
+        @which, @ignore-case, @include-hidden
 
     if @where instanceof RegExp
       @content-regex = @where
@@ -27,10 +26,10 @@ class Injecter
       flag = @ignore-case is false and "" or "i"
       @content-regex = new RegExp @where, flag
 
-    @length-of = @append and (.length) or (->0)
+    @length-of = @prepend and (->0) or (.length)
     @get-code  = match @type
       | "raw"  => -> @content
-      | "file" => @@@get-cached-loader process.cwd!, @content
+      | "file" => @@@get-cached-loader process.cwd!, @content, @encoding
       | _      => -> @content
 
   is-target: ->
@@ -45,7 +44,9 @@ class Injecter
       text = "#{text.slice 0,pos}#{@get-code!}#{text.slice pos}"
     text
 
-  @get-cached-loader = (base,file,enc='utf8')->
+  @create = -> new Injecter it
+
+  @get-cached-loader = (base,file,enc='utf-8')->
     last   = null
     p      = path.resolve base, file
     cached = ""
@@ -55,10 +56,46 @@ class Injecter
         cached := fs.read-file-sync p, {encoding:enc}
         cached := cached.to-string!
         last   := mtime
-
       cached
 
-  @create = -> new Injecter it
+class InjectionRouter
+  ({@path,@target,@inject,@default-pages,@encoding,@list-directory})->
+    @injecters = @inject.map Injecter~create
+    @default-pages = OptionHelper.read-pattern @default-pages
+
+  route: (req,res,next)->
+    next! if not (req.method in <[ GET HEAD ]>)
+
+    url = connect.utils.parse-url req
+    rel = path.relative @target, url.pathname
+    file = path.resolve @path, rel
+
+    is-dirpath = url.pathname.char-at (url.pathname.length - 1)
+
+    try
+      stat = fs.stat-sync file
+      if stat.is-directory! and is-dirpath
+        dir = file
+        files = fs.readdir-sync dir
+          .map (path.join dir, _)
+          .filter (name)->
+            try fs.stat-sync name ?.is-file!
+            catch e => false
+          .sort!.filter @~default-pages
+
+        if files.length > 0
+          file := files.0
+          stat := fs.stat-sync file
+
+      if not (stat.is-file! and @injecters.some (.is-target file))
+        return next!
+
+      text = fs.read-file-sync file, @{encoding}
+      text = @injecters.reduce (->&1.inject file, &0), text
+      res.set-header "Content-Length", Buffer.byte-length text
+      res.end text, @encoding
+    catch
+      next!
 
 # Main class
 class SimpleAutoreloadServer
@@ -70,7 +107,78 @@ class SimpleAutoreloadServer
     @websockets = []
     @running = no
 
-    @options = OptionHelper.setup ({} <<< option)
+    @setup-options option
+
+  setup-options: (options,logger=->)->
+    options = {} <<< options
+    option-helper = new OptionHelper
+
+    get-root-def = (pname,name,alter=name)->
+      (options,def-map)->
+        | options[pname]?.[name]?   => that
+        | options[pname]?.0?.[name] => that
+        | options[name]? => that
+        | _ => def-map[alter]
+
+    defaults = {}
+    defaults-src =
+      mount:  <[ watch recursive followSymlinks ignoreCase includeHidden ]>
+      inject: <[ where which type prepend includeHidden ]>
+
+    for key,names of defaults-src
+      base = (defaults[key] ?= {})
+      for def in names
+        base[def] = get-root-def key, def
+
+    assured = option-helper.assure options, defaults
+    # json
+    json = null
+    pre-file = file = null
+    dir = null
+    if assured.search-config
+      next-dir = process.cwd!
+      do
+        dir      := next-dir
+        pre-file := file
+        file     := path.resolve dir, assured.config
+        try
+          fs.read-file-sync file, @{encoding}
+            json := JSON.parse ..to-string!
+
+        next-dir = path.join dir, ".."
+      while (not json?) and (pre-file isnt file)
+
+    base := json ? {}
+
+    if json?
+      @basedir = path.resolve dir, (path.dirname file)
+      process.chdir @basedir
+    else
+      @basedir = process.cwd!
+
+    new-base = ({} <<< base <<< options)
+    for <[ inject mount ]>
+      new-base[..] = [] ++ (base[..] ? []) ++ (options[..] ? [])
+
+    out = option-helper.assure new-base, defaults
+
+    if not out.inject? or out.inject.length < 1
+      out.inject = []
+      try
+        file = path.resolve @basedir, '.autoreload.html'
+        if (fs.lstat-sync file)?.is-file!
+          out.inject.push {content: file}
+      out := option-helper.assure out, defaults
+
+    # check onmessage
+    if out.onmessage not instanceof Function
+      out.onmessage = (->)
+
+    @options = out
+
+    if json?
+      @log "verbose", "options", "config loaded: #{file}"
+      @log "verbose", "options", "change working directory to #{dir}"
 
   log: (mode, tag, text)->
 
@@ -99,11 +207,15 @@ class SimpleAutoreloadServer
       @log "error",  "server", ex.message
 
   start: (done)->
+    mounts = []
     try
       @stop! if @running
 
-      dirs = for [@options with {target:"/"}] ++ (@options.mount ? [])
-        .. with {path:path.resolve ..path}
+      mounts ++= ({} <<< @options <<< {target:"/"})
+      mounts ++= (@options.mount ? [])
+
+      dirs = for mounts
+        ({} <<< .. <<< {path:path.resolve @basedir, ..path})
 
       @watchers = @create-watchers dirs
       @server   = @create-server   dirs
@@ -149,15 +261,20 @@ class SimpleAutoreloadServer
 
       ..listen (listen.port .|. 0), listen.host, 511, ~>
         @running = yes
-        @log "normal", "server", "started on :#{"#{listen.port}".green} at #{listen.path}"
+        @abspath = "#{path.resolve process.cwd!, listen.path}"
 
-        if @options.execute?
-          @log "verbose", "server", "execute command: #{that}"
-          child = child_process.exec that, {stdio: \ignore}
+        for mounts.slice 1
+          @log "normal", "server", "mounted #{..path} to #{..target}"
+
+        @log "normal", "server", "started on :#{"#{listen.port}".green} at #{@abspath}"
+
+        if @options.execute? and @options.execute
+          @log "normal", "server", "execute command: #{that}"
+          child = child_process.exec that, {stdio:\ignore}
             ..unref!
 
           if @options.stop-on-exit
-            @log "verbose", "server", "server will stop when the command has exit."
+            @log "normal", "server", "server will stop when the command has exit."
             child.on \exit, ~>
               @log "normal", "server", "child command has finished."
               @stop!
@@ -165,7 +282,7 @@ class SimpleAutoreloadServer
         if @options.browse
           {port,address} = @server.address!
 
-          if address is <[ 0.0.0.0 :: ]>
+          if address in <[ 0.0.0.0 :: ]>
             address := "localhost"
 
           server-url = switch typeof @options.browse
@@ -185,15 +302,16 @@ class SimpleAutoreloadServer
     if @options.recursive
       @log "verbose", "server", "init with recursive-option. this may take a while."
 
-    should-reload = OptionHelper.read-pattern @options.reload, @options.ignore-case
+    should-reload = OptionHelper.read-pattern do
+      @options.reload, @options.ignore-case, @options.include-hidden
 
     # create watch array
     watch-objs = dirs.map (dir)~>
-      matcher = OptionHelper.read-pattern dir.watch, dir.ignore-case
+      matcher = OptionHelper.read-pattern dir.watch, dir.ignore-case, dir.include-hidden
 
       new RecursiveWatcher dir with do
         delay: @options.watch-delay
-        error: ({message},src)~> @log "error", "watch", "#src Error: #message"
+        error: ({message},src)~> @log "error", "watch", "#{src} Error: #message"
         update:(,target)~>
           if not matcher target
             @log "verbose", "watch", "#{"(ignored)".cyan} #target"
@@ -208,26 +326,31 @@ class SimpleAutoreloadServer
               path:   http-path
               reload: should-reload http-path
 
-    # fix Este to catch the error
     watch-objs
 
   # Creating httpd-server
   create-server: (dirs)->
 
-    injects = [] ++ @options.inject
+    inject   = [] ++ @options.inject
+    encoding = @options.encoding
+
 
     if @options.builtin-script
-      injects .= concat {
-        which:   "**/*.htm{l,}"
+      inject .= concat {
+        which:   new RegExp ".*\\.html?$"
         where:   new RegExp "</(body|head|html)>", "i"
         type:    "file"
         content: path.resolve __dirname, \../client.html
-        +append
+        +prepend
+        encoding
       }
 
-    injecters = injects.map Injecter~create
+    # reinterpret path
+    for ([] ++ inject)
+      if ..type is "file"
+        ..content = path.resolve @basedir, ..content
 
-    app = connect!
+    app = @options.connect-app ? connect!
     # logger
     if @options.verbose
       app.use <| connect.logger '
@@ -240,13 +363,8 @@ class SimpleAutoreloadServer
       if @options.list-directory
         app.use ..target, (connect.directory ..path, {+icons})
 
-      app.use ..target, static-transform do
-        match: /^/
-        root: ..path
-        normalize: (path.relative ..target, _)
-        transform: (file, text, send)->
-          send <| injecters.reduce (->&1.inject file, &0), text
-
+      opts = ({} <<< ..{path,target} <<< {inject,encoding} <<< @{default-pages})
+      app.use ..target, (new InjectionRouter opts)~route
       app.use ..target, (connect.static ..path)
 
     http.create-server app

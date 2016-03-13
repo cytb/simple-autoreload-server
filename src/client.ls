@@ -18,7 +18,7 @@ class AutoreloadClient
 
   import {
     WebSocket:   window.WebSocket   or window.MozWebSocket
-    URL:         (window.URL?::?href? and window.URL) or class
+    URL:         (window.URL?::? and "href" in window.URL:: and window.URL) or class
       (uri,base)->
         newBase       = document.createElement \base
         newBase.href  = base

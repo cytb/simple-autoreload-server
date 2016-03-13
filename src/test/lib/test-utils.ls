@@ -44,6 +44,14 @@ touch = (file)->
       console.log e,e2
       false
 
+remove = (file)->
+  try
+    fs.unlink-sync file
+    true
+  catch
+    console.log e
+    false
+
 update = (file,data)->
   if data?
   then store file, data
@@ -72,7 +80,7 @@ new-copy = (src={},out={})->
 
 export
   delayed, random-string,
-  load, store, touch, update
+  load, store, touch, update, remove
   new-copy
   deep-match
 

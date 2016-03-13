@@ -1,0 +1,141 @@
+Usage of options for simple-autoreload-server.
+========================
+
+This document provides details of commandline or module options.
+
+# Option types
+
+Options has a type which of string, pattern, number, and boolean.
+
+string
+---
+parsed as string itself. this option can be specified multiple times on commandline,
+and an array of string passed to module.
+(e.g. --option a --option b => [ "a", "b" ])
+
+which value is chosen is depends on the option.
+
+number
+---
+parsed as number itself.
+
+boolean
+---
+as boolean. don't pass additional parameter.
+if you want set 'false' to option on commandline,
+add natgation prefix  'no' or 'without'
+(e.g. --no-option, --without-option)
+
+pattern
+---
+* Commandline
+  Option without additional parameter is parsed as boolean.
+  In this case, pattern matches all of target on true.
+  and if it has negation prefix, pattern matches none of target.
+
+  if additional parameter is provided, it is parsed as "glob pattern".
+
+  glob implementation is depends on minimatch v<%= pkg.dependencies.minimatch %>.
+  
+  e.g.
+    - --pattern-option => matches all
+    - --no-pattern-option => matches none
+    - --pattern-option "\*\*" => matches ** (glob pattern)
+    - --pattern-option null => matches "null" (glob pattern)
+
+* Module (function argument)
+
+  if Array is provided, it will be parsed as list of 'pattern'
+  and only the string which can match all of these patterns will be matched.
+
+  if String is provided, it is parsed as "glob pattern".
+
+  RegExp object, or Function is provided, it will be used itself.
+  (Function has to return true if matched.)
+
+  otherwise, the pattern matches all if value is truthy and none if falsy.
+
+# List of options
+
+<%
+  options.forEach(function(opt){
+    function camel(word){
+        return word.replace(/^./g, function(x){
+          return x.toUpperCase();
+        });
+    }
+    function get(){
+      var words = opt.label.split('-');
+      var rest  = words.slice(1).map(camel);
+      return words.slice(0,1).concat(rest).join('');
+    }
+
+    var moduleOption = get();
+    var defValue = (function(){
+      switch(typeof opt.def){
+        case "string": return '"' + opt.def + '"';
+        default:       return opt.def + "";
+      }
+      return "";
+    })();
+
+    defValue = defValue.replace(/(\\|\*)/g,function(x){return "\\" + x;});
+    defValue = defValue.replace(/(\|)/g,function(x){return "&#124;";});
+%>
+<%= opt.label %> <%
+  var exs = opt.examples;
+      exs = (exs != null ? [].concat(exs) : []);
+
+  if( opt.nocli ){
+%> (only for module)
+---
+
+<%= opt.desc %>
+
+|option||
+|:---|:---|
+|name|<%= moduleOption %>|
+|default| <%= defValue %>|
+
+<%
+  } else {
+%>
+---
+
+<%= opt.desc %>
+
+|option||
+|:---|:---|
+|full-flag| <%= "--" + opt.label %>|
+|short-flag| <%= opt.short ? "-" + opt.short : "(none)" %>|
+|module| <%= moduleOption %>|
+|type| <%= opt.type %>
+|default| <%= defValue %>|
+<% } %>
+
+<%
+  if( exs.length > 0 ){
+%>
+### Examples
+<%
+    for(var i = 0; i < exs.length; i++){
+      var example = exs[i];
+      if( "command" in example ){
+%>
+- <%= example.command %>
+
+  <%= example.result %>
+
+<%
+      }
+    }
+  }
+%>
+---
+
+<%
+  });
+%>
+
+
+

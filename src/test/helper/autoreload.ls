@@ -30,16 +30,19 @@ require! {
   '../../index': autoreload
 }
 
-
 {flatten} = prelude-ls
 {new-copy} = test-utils
 
 @{delayed,random-string} = test-utils
 
+# change base
+command-path = path.resolve process.cwd!, (path.join.apply path, pathes.command)
+process.chdir <| path.join.apply path, pathes.data
+
 # When = ``when``
 
 @Tester = class Tester
-  {touch,store,load,update} = test-utils
+  {touch,store,load,update,remove} = test-utils
 
   ({@name,@expect-ext=".html",@log=false,@port=18888},done=(->))->
     @server = null
@@ -74,21 +77,20 @@ require! {
     done!
 
   data-path: (...names)->
-    joined = path.join.apply path,
-      pathes.data ++ flatten names
+    joined = path.join.apply path, (flatten names)
 
     @logger \data-path, joined
     joined
 
   open-data: (...names)->
-    console.log path.resolve @data-path names
+    console.log path.resolve (@data-path names)
     @do-file-func (@data-path names), \open-data, load
 
   start-server-process: (opts=[],done=->)->
     @logger \start-server-process
     @kill-server-process!
 
-    bin = (path.join.apply path, pathes.command)
+    bin = command-path
     arg = []
       ..push '--verbose' if @log
       ..push (@data-path pathes.serv)
@@ -174,6 +176,17 @@ require! {
 
   update-serv-file: (file,data)->
     @do-serv-file-func file, \update, (update _, data)
+
+  update-data-file: (file,data)->
+    file = @data-path file
+    @do-file-func file, \update, (update _, data)
+
+  remove-serv-file: (file,data)->
+    @do-serv-file-func  file, \remove, (remove _, data)
+
+  remove-data-file: (file,data)->
+    file = @data-path file
+    @do-file-func file, \remove, (remove _, data)
 
   do-serv-file-func: (serv-file,name,func)->
     file = @data-path pathes.serv, serv-file

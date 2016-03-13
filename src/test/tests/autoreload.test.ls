@@ -3,7 +3,7 @@
 describe "client side script", ->
 
   before-all (done)->
-    @timeout = 10000ms
+    @timeout = 8000ms
 
     @html-file  = 'touch-test.html'
     @js-file    = 'touch-test.js'
@@ -94,7 +94,6 @@ describe "client side script", ->
         loader: ~>
           id = random-string 16
           @update @js-file, "window.testId = '#id';"
-          console.log {id}
           {id}
 
         evaluator: ->
@@ -102,7 +101,6 @@ describe "client side script", ->
           mtime: window.load-time
 
         done: ({pre,post})~>
-          console.log &0
           assert.equals pre.result.mtime, post.result.mtime,
             "modified time must be same"
 

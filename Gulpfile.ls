@@ -21,8 +21,8 @@ require! <[
 require! {
   child_process: {spawn}
   'prelude-ls' : {Obj,obj-to-pairs,map}
-  'package.json': pkg
-  'src/lib/option-list': {options}
+  './package.json': pkg
+  './src/lib/option-list': {options}
   'lodash': {template}
 }
 
@@ -122,9 +122,9 @@ task do
 
   "build:doc": <[ build:document ]>
   "build:document": pipe-line ->
-    * gulp.src "src/doc/README.tmpl", {base:'src/doc'}
+    * gulp.src <[ src/doc/!(banner).tmpl ]>, {base:'src/doc'}
       gulp-template (get-template-param!)
-      gulp-rename 'README.md'
+      gulp-rename {extname:".md"}
       gulp.dest './'
 
   "build:src":     <[ build:lib build:bin build:client ]>
@@ -145,7 +145,7 @@ task do
   "release-git": gulp.series <[ release clean:all  ]>
 
   watch: -> watch do
-    'src/*.tmpl':       <[ build:document ]>
+    'src/doc/!(banner).tmpl':   <[ build:document ]>
     'src/lib/*.ls':     <[ build:lib ]>
     'src/client.ls':    <[ build:client ]>
     'src/bin/*.ls':     <[ build:bin ]>

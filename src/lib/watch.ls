@@ -7,7 +7,7 @@ require! {
 class RecursiveWatcher
   ({
     @path,
-    @delay=5ms,
+    @delay=30ms,
     @update=(->),
     @error=(->),
     @recursive=false,
@@ -19,7 +19,7 @@ class RecursiveWatcher
     dirs  = []
     queue = [root]
 
-    while dir = queue.shift!
+    while dir = queue.shift! => try
       dirs.push dir
 
       for file in fs.readdir-sync dir => try
@@ -31,6 +31,9 @@ class RecursiveWatcher
         queue.push full-path
       catch ex
         @error ex
+
+    catch ex
+      @error ex
 
     dirs
 

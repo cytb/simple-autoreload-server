@@ -1,7 +1,7 @@
 
 describe "command line script", ->
   before (done)->
-    @timeout = 20000ms
+    @timeout = 8000ms
     @tester-options = {
       port: 12352
       name: 'touch-test'

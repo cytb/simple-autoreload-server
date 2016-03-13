@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title> chat broker sample </title>
+    <link rel="StyleSheet" href="style.css" type="text/css" />
+    <script type="text/javascript" src="/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript">
+      function getColor(x){
+        var hex = x.split("");
+            hex = hex.reduce(function(a,b){
+              return a * 31 + (b && b.charCodeAt(0));
+            },0);
+            hex = hex.toString(16);
+
+        var color = "000000".slice(6 - hex.length) + hex;
+            color = "#" + color.slice(color.length - 6);
+
+        return color;
+      }
+
+      function addMessage(q){
+        var time = (new Date(q.time * 1)).toLocaleString();
+        $("<div>["+time+"] "+q.name+"> "+q.text+"</div>")
+          .css("color",getColor(q.name)).appendTo("#out");
+      }
+
+      window.addEventListener("AutoreloadClient.message",function(ev){
+        if( ev.detail.type != "chat" ){
+          return;
+        }
+        ev.preventDefault();
+        addMessage(ev.detail.data);
+      });
+
+      document.addEventListener("DOMContentLoaded",function(){
+        $.get("/log",function(data){
+              JSON.parse(data).forEach(addMessage);
+        });
+        $("#name").val( localStorage.name || ("id" + ((1000000*Math.random())|0)) );
+      });
+
+      window.sendMessage = function(){
+        if( $("#text").val().trim() ){
+          $.post("/push", {
+              name: $("#name").val(),
+              text: $("#text").val()
+          });
+        }
+        $("#text").val("");
+      };
+
+      window.changeName = function(){
+        var name = prompt("type yourname", $("#name").val() );
+            name && $("#name").val( localStorage.name = name );
+      };
+
+    </script>
+  </head>
+  <body>
+    <div id="caption"> <h2>Let's chat!</h2> </div>
+    <div id="wrap">
+      <div id="out"></div>
+      <form id="input" onsubmit="sendMessage(); return false">
+        <input id="name" type="button" value="name" onclick="changeName()" />
+        <input id="text" type="text"   value="" />
+        <input id="send" type="submit" value="send" />
+      </div>
+    </div>
+  </body>
+</html>

@@ -12,7 +12,7 @@ export
       * "label": "watch"
         "short": "w"
         "type":  "pattern"
-        "def":   "**"
+        "def":   "**/**"
         "help":  "pattern for file to watch."
         "desc":  """
           pattern for file to watch.
@@ -38,8 +38,8 @@ export
         "desc":  """
           specifies additional directory to publish.
 
-          it can accept multiple-times in commandline.
-          other 'mount.' options are attached in corresponding order.
+          program can accept multiple times in commandline.
+          other 'mount.*' options are attached to corresponding path by order in commandline.
         """
         "examples":
           * * "command": "autoreload -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build"
@@ -53,9 +53,9 @@ export
         "short": "t"
         "type":  "string"
         "def":   "/"
-        "help":  "server path as route target."
+        "help":  "server side path of mounted direcory"
         "desc":  """
-          server path as route target.
+          server side path of mounted direcory.
         """
         "examples":
           * * "command": "autoreload . 8080 -m ./www/js -t /components"
@@ -67,19 +67,10 @@ export
       * "label": "mount.watch"
         "short": "W"
         "type":  "pattern"
-        "def":   "**"
-        "help":  "pattern for file to watch."
+        "def":   "**/**"
+        "help":  "pattern of file to watch."
         "desc":  """
-          pattern for the file to watch.
-
-            it matches any files if passed true function argument
-          or specified command-line option as flag.
-
-            it matches nothing if passed false via function argument
-          or specified command-line option with the negative prefix.
-
-          if Array of values or multiple 'mount.watch' option on command-line was passed,
-          the server associates each options to each 'mount.path' in same order.
+          pattern of file to watch.
         """
 
       * "label": "host"
@@ -102,7 +93,7 @@ export
         """
 
       * "label": "config"
-        "short": "C"
+        "short": "c"
         "type":  "string"
         "def":   ".autoreload.json"
         "help":  "load json as config."
@@ -141,12 +132,12 @@ export
         "desc":  """
           invokes platform default program with argumemts after launched. 
 
-          if true via function argument, or '--browse' option followed by nothing via command-line, 
+          if provided true via function argument 
+          or '--browse' option followed by nothing via command-line, 
           the program invokes the default with the server url.
 
           if the 'String' value was specified, it will be passed instead of the server url.
           the server does nothing if specified Boolean of 'false' or 'null'.
-
         """
         "examples":
           * * "command": "autoreload -d . -p 8088 -H 192.168.1.15 -b"
@@ -195,6 +186,34 @@ export
 
           all of the glob patterns that were passed as 'String' type
           via function arguments or command-line option will be affected.
+        """
+
+      * "label": "include-hidden"
+        "short": "n"
+        "type":  "boolean"
+        "def":   false
+        "help":  "include hidden files (dot files)."
+        "desc":  """
+          include hidden files (dot files).
+          this option is no harm except for glob string patterns.
+        """
+
+      * "label": "default-pages"
+        "short": null
+        "type":  "pattern"
+        "def":   "index.{htm,html}"
+        "help":  "default page file pattern for directory request."
+        "desc":  """
+          default page file pattern for directory request.
+        """
+
+      * "label": "encoding"
+        "short": null
+        "type":  "string"
+        "def":   "utf-8"
+        "help":  "encoding for reading texts and inject target files"
+        "desc":  """
+          encoding for reading texts and inject target files
         """
 
       * "label": "watch-delay"
@@ -304,7 +323,7 @@ export
       * "label": "inject.which"
         "short": "F"
         "type":  "pattern"
-        "def":   "**/*.{php,htm,html,cgi,pl,rb}"
+        "def":   "**/**.{php,htm,html,cgi,pl,rb}"
         "help":  "specify regex pattern for injection target."
         "desc":  """
           specify regex pattern for injection target.
@@ -321,14 +340,14 @@ export
           content will be injected before matched string.
         """
 
-      * "label": "inject.append"
-        "short": "A"
+      * "label": "inject.prepend"
+        "short": "E"
         "type":  "boolean"
-        "def":   true
-        "help":  "injection method. ('prepend' or 'append')"
+        "def":   false
+        "help":  "insert content before matched."
         "desc":  """
-          change injection method to append.
-          if true, content will be injected 'after' matched string.
+          change injection method to 'prepend'.
+          if true, content will be injected 'before' matched string.
         """
 
       * "label": "help"
@@ -358,7 +377,18 @@ export
         "help":  "onmessage event handler."
         "desc":  """
           specifies server onmessage handler.
-          server calls this functoin on broadcast the message.
+          server calls this function on broadcast the message.
+        """
+        "nocli": true
+
+      * "label": "connect-app"
+        "short": null
+        "type":  "object"
+        "def":   null
+        "help":  "specify 'connect' app object as server base."
+        "desc":  """
+          specifies 'connect' app object as server base.
+          server middleware layers willbe stacked to this object.
         """
         "nocli": true
 

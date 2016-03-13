@@ -40,9 +40,9 @@ class ParseHelper
 
     # depth = 1
     if base
-      value := (key):value
-      for {(key):it} in out | not it?
-        it <<< value
+      value := {(key):value}
+      for out | not ..[key]?
+        .. <<< value
         return
 
     out.push value
@@ -64,69 +64,11 @@ class ParseHelper
       @set (@unknown[target] ?= {}), key, value
 
 class OptionHelper
-  @setup = (options)->
-    options = {} <<< options
-    option-helper = new OptionHelper
-
-    get-root-def = (pname,name,alter=name)->
-      (options,def-map)->
-        | options[pname]?.[name]?   => that
-        | options[pname]?.0?.[name] => that
-        | options[name]? => that
-        | _ => def-map[alter]
-
-    defaults = {}
-    defaults-src =
-      mount:  <[ watch recursive followSymlinks ignoreCase ]>
-      inject: <[ where which type append ]>
-
-    for key,names of defaults-src
-      base = (defaults[key] ?= {})
-      for def in names
-        base[def] = get-root-def key, def
-
-    options = option-helper.assure options, defaults
-    base = {}
-    # json
-    json = null
-    dir  = process.cwd!
-    if options.search-config
-      pre-file = file = null
-      do
-        pre-file = file
-        file     = path.resolve dir, options.config
-        try
-          fs.read-file-sync file, {encoding:'UTF-8'}
-            json := JSON.parse ..to-string!
-
-        dir = path.join dir, ".."
-      while (not json?) and (pre-file isnt file)
-
-    base := json ? {}
-    out = option-helper.assure (base <<<< options), defaults
-
-    if not out.inject? or out.inject.length < 1
-      if not json?
-        dir = process.cwd!
-      out.inject = []
-      try
-        path.resolve dir, '.autoreload.html'
-          out.inject.push {
-            content:fs. read-file-sync .., {encoding:'UTF-8'}
-          }
-      out := option-helper.assure out, defaults
-
-    # check onmessage
-    if out.onmessage not instanceof Function
-      out.onmessage = (->)
-
-    out
-
   @parse = (-> new OptionHelper it .parse!)
 
-  @read-pattern = (pattern,nocase)-> switch typeof! pattern
-    | \Array    => (pattern.map &callee _, nocase)~every . (|>)
-    | \String   => (new Minimatch pattern, {nocase})~match
+  @read-pattern = (pattern,nocase,dots=false)-> switch typeof! pattern
+    | \Array    => (pattern.map &callee _, nocase, dots)~every . (|>)
+    | \String   => (new Minimatch pattern, {nocase,dots})~match
     | \RegExp   => (clone-regex pattern)~test
     | \Function => pattern
     | _         => ->pattern
@@ -179,7 +121,6 @@ class OptionHelper
             | _ => null
 
     option[key] = switch entry.type
-    | \pattern => @@@read-pattern value
     | \number  => (is-array value and value.pop! or value) * 1
     | _        => value
 
@@ -209,7 +150,7 @@ class OptionHelper
         | not obj?          => []
         | is-array obj      => obj.map &callee
         | is-array obj[key] => obj[key].map (->obj with (key):it)
-        | obj[leaf]?        => [obj]
+        | obj[key]?         => [obj]
         | _                 => []
 
     # pass 2

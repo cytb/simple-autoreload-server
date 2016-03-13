@@ -1,0 +1,50 @@
+<script type="text/javascript" src="/marked.min.js"></script>
+<script type="text/javascript">
+  var patternMd = /\/.+\.md$/;
+
+  function refreshMd(pattern){
+    var divs    = document.body.getElementsByTagName("div");
+    var targets = [];
+    for( var i = 0; i < divs.length; i++ ){
+      var targetPath = divs[i].getAttribute("src");
+
+      if( (typeof pattern  == "string" && pattern == targetPath) ||
+          ( pattern.test && pattern.test (targetPath) )
+      ){
+        targets.push(divs[i]);
+        console.log("found: " + targetPath);
+      }
+    }
+
+    if( targets.length < 1 ){ return; }
+
+    targets.forEach(function(target){
+      var path = target.getAttribute("src");
+      var xhr = new XMLHttpRequest();
+          xhr.open("GET",path);
+          xhr.onload = function(){
+            target.innerHTML = marked(xhr.response);
+            console.log("rereshed: " + path);
+          };
+          xhr.send();
+    });
+  }
+
+  function onUpdateMd(ev){
+    if( patternMd.test(ev.detail.path) ){
+      // stop built-in refresh function.
+      ev.preventDefault();
+
+      // refresh parsed markdown
+      refreshMd(ev.detail.path);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded",function(){
+    refreshMd(patternMd);
+  });
+  window.addEventListener("AutoreloadClient.update",onUpdateMd);
+
+  // module can accept multple listeners.
+  // window.addEventListener("AutoreloadClient.update",onUpdateLicenseMd);
+</script>

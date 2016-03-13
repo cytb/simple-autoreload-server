@@ -1,0 +1,18 @@
+{
+  "watch":  "**/**.{md,html}",
+  "reload": "**/**.html",
+  "mount": [
+    {
+      "path":   "components/",
+      "target": "/"
+    }
+  ],
+  "inject": [
+    {
+      "content": "inject.html",
+      "which":   "**/**.html",
+      "where":   "</head>",
+      "prepend": true
+    }
+  ]
+}

@@ -23,14 +23,14 @@ Command Line Usage
 autoreload-server [options] [root-dir] [port]
 ```
 
-Command Line Options
+Overview of Command Line Options
 ----
 
-option | default | description
+option | default | help
 :--- | :--- | :---
 <%
   options.forEach(function(opt){
-    if( opt.nocmd ){ return; }
+    if( opt.nocli ){ return; }
     var option = ("--"+opt.label) + (opt.short ? (", -"+opt.short) : "");
     var def    = (opt.def != null) ? ('`' + opt.def + '`') : '';
     var help   = opt.help;
@@ -61,10 +61,13 @@ var server = launcher({
 });
 ```
 
+Client Module Usage
+----
+See examples, and "src/client.ls" for details.
+
 #### Options
 
-See 'src/lib/option-list.ls' for details of options.
-
+See [Options.md](./Options.md) for details.
 
 Version
 ----
