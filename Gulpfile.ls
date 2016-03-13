@@ -43,10 +43,7 @@ pipe-line = (generator)->
         console.log arguments
         next.emit "end"
 
-      try
         pipe.pipe next
-      catch
-        next.end!
 
     generator! |> (.filter (isnt null) |> (.reduce red))
   )
