@@ -1,6 +1,7 @@
 src/
 test/
 tmp/
+examples/
 git-hooks/
 .git*
 .travis*
