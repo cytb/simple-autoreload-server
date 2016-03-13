@@ -36,20 +36,20 @@ option | default | help
 `--mount.watch, -W` | `**/**` | _pattern of file to watch._
 `--host, -H` | `0.0.0.0` | _set host address to publish._
 `--port, -p` | `8080` | _set port to listen (http)._
-`--config, -c` | `.autoreload.json` | _load json as config._
+`--config, -c` | `.autoreload.json` | _load options from json._
 `--search-config` | `true` | _search for config json in parent directories._
 `--list-directory, -l` | `true` | _enable directory listing._
 `--browse, -b` | `false` | _open server url by platform default program._
 `--execute, -e` | `` | _execute command when the server has prepared._
-`--stop-on-exit, -k` | `false` | _exit when invoked process specified by "--execute" died._
+`--stop-on-exit, -k` | `false` | _exit when invoked process specified by "execute" died._
 `--ignore-case, -i` | `true` | _ignore case of glob patterns._
-`--include-hidden, -n` | `false` | _include hidden files (dot files)._
+`--include-hidden, -n` | `false` | _glob includes hidden files._
 `--default-pages` | `index.{htm,html}` | _default page file pattern for directory request._
 `--encoding` | `utf-8` | _encoding for reading texts and inject target files_
-`--watch-delay` | `1` | _delay time to supress duplicated watch event (in ms)._
+`--watch-delay` | `20` | _delay time to supress duplicate watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose logging._
 `--builtin-script` | `true` | _enable default built-in script injection._
-`--client-module` | `true` | _expose client module to 'window' object.  (unimplemented!)_
+`--client-module` | `true` | _expose client module to 'window' object._
 `--client-log` | `false` | _inform client to log._
 `--recursive, -R` | `true` | _watch sub-directories recursively. (may take a while at startup)_
 `--follow-symlinks, -L` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
