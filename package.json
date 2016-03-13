@@ -59,7 +59,7 @@
     "postversion": "git tag -f alpha && git push && git push --delete origin alpha && git push --tags"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   },
   "readme": "",
   "readmeFilename": "README.md"
