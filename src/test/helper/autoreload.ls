@@ -5,7 +5,7 @@ pathes =
   serv: <[ serv ]>
   expect: <[ expect ]>
   fixture: <[ fixture ]>
-  command: <[ bin autoreload.js ]>
+  command: <[ bin autoreload ]>
 
 buster = require \buster
 buster.spec.expose @
