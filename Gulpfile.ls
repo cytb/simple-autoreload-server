@@ -106,7 +106,7 @@ task do
           #!/usr/bin/env node
 
         '''
-      gulp-chmod 775
+      gulp-rename {extname:""}
 
   "build:client": pipe-line-ls <[ src/client.ls ]>, ->
     * gulp-insert.wrap '''
