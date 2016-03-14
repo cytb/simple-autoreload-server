@@ -182,6 +182,7 @@ class SimpleAutoreloadServer
 
   log: (mode, tag, text)->
 
+    return if @options.silent
     return if (mode is \verbose) and not @options.verbose
 
     colored-tag = match mode

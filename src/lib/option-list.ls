@@ -236,6 +236,15 @@ export
           enable verbose logging.
         """
 
+      * "label": "silent"
+        "short": null
+        "type":  "boolean"
+        "def":   false
+        "help":  "disable server logging."
+        "desc":  """
+          disable server logging.
+        """
+
       * "label": "builtin-script"
         "short": null
         "type":  "boolean"
@@ -325,9 +334,9 @@ export
         "short": "F"
         "type":  "pattern"
         "def":   "**/**.{php,htm,html,cgi,pl,rb}"
-        "help":  "specify regex pattern for injection target."
+        "help":  "specify pattern for injection target."
         "desc":  """
-          specify regex pattern for injection target.
+          specify pattern for injection target.
         """
 
       * "label": "inject.where"

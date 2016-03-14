@@ -489,6 +489,24 @@ enable verbose logging.
 ---
 
 
+silent 
+---
+
+disable server logging.
+
+|option||
+|:---|:---|
+|full-flag| --silent|
+|short-flag| (none)|
+|module| silent|
+|type| boolean
+|default| false|
+
+
+
+---
+
+
 builtin-script 
 ---
 
@@ -640,7 +658,7 @@ specifies type of 'inject.content' option.
 inject.which 
 ---
 
-specify regex pattern for injection target.
+specify pattern for injection target.
 
 |option||
 |:---|:---|

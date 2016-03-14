@@ -17,6 +17,7 @@ describe "command line script", ->
       @tester.start-server-process @commandline-options, (@ar)~>
         @ar.stderr.on \data, @stderr~push
         @ar.stdout.on \data, ~>
+          console.log "#it"
           @stdout.push it
           if first
             first := false
