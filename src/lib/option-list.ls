@@ -26,7 +26,7 @@ export
         "help":  "pattern for file to reload the whole page."
         "desc":  """
           pattern for file to reload the whole page.
-          whether or not to reload actually is depends on behavior of client script.
+          whether or not to reload actually depends on behavior of client script.
           if true, it matches any files, and matches nothing on false.
         """
 
@@ -276,7 +276,7 @@ export
         "desc":  """
           inform client to log.
           the server only send a option to client on connect by this option.
-          whether or not to logs actually is depends on behavior of client script.
+          whether or not to logs actually depends on behavior of client script.
         """
 
       * "label": "recursive"
