@@ -100,13 +100,22 @@ See [Options.md](./Options.md) for details.
 
 Client Module Usage
 ----
-note: available only for the web page injected the built-in script module.
+***note: available only for the web page injected the built-in script module.***
 
-currently, following events are handleable on client side.
+Client module will be exposed as window.AutoreloadClient (default).
+
+and the module emits some events. set listener to window object to handle events.
+
+e.g.
+
+  window.addEventListener("AutoreloadClient.update", function(ev){...});
+
+
+Currently, following events are handleable on client side.
 
 event   | desc
 :---    |:---
-update  | file update detected (only watched file).
+update  | file update detected
 refresh | refresh request.
 reload  | reload request.
 scan    | before dom element scanning.
@@ -114,23 +123,35 @@ open    | connected.
 close   | disconnected.
 message | received a message above.
 
-e.g.
-  window.addEventListener("AutoreloadClient.update", function(ev){...});
+(server will send 'update' events only the file matched to 'watch' option.)
 
+Some of events emit another events. (chained)
 
-Event listeners receive an event object with 'detail' key.
+event   | emits
+:---    |:---
+message | (any events by server response)
+update  | scan
+scan    | refresh, reload
+reload  | refresh (on failed or canceled)
+
+internal operation and chain of event emission are cancelable by using "event.preventDefault()".
+
+event listeners will receive an event object with 'detail' key.
 and the 'detail' object has some of parameters below.
 
 key       | desc
 :---      |:---
+client    | client module instance.
 path      | path of file updated.
 url       | url of file updated.
 type      | original message type from server.
 scan      | scan target list.
+reload    | reload or not. (on reload event, set false to switch 'refresh')
 target    | dom object of refresh target.
-targetUrl | url of refresh target. (contained as dom attribute)
+targetUrl | url of refresh target. (url which contained as dom attribute)
 
-See content of examples directory or "src/client.ls" for details.
+and the contents of './examples' may be a useful reference for usage of client module.
+or see '[src/client.ls](./src/client.ls)' for more information.
 
 Version
 ----
