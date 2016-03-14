@@ -221,10 +221,10 @@ export
         "short": null
         "type":  "number"
         "def":   20ms
-        "help":  "delay time to supress duplicate watch event (in ms)."
+        "help":  "delay time to supress duplicate watch event (ms)."
         "desc":  """
-          delay time to supress duplicate watch event.
-          (the watch event is often fired multiple times in short duration.)
+          delay time to supress duplicate watch event (in milil-seconds).
+          the watch event is often fired multiple times in short duration.
         """
 
       * "label": "log"
@@ -283,9 +283,9 @@ export
         "short": "R"
         "type":  "boolean"
         "def":   true
-        "help":  "watch sub-directories recursively. (may take a while at startup)"
+        "help":  "watch sub-directories recursively."
         "desc":  """
-          watch sub-directories recursively.
+          watch sub-directories recursively. this may take a while at startup.
           the server does not detect cyclic structure and it may cause infinit loop.
           unset follow-symlinks option if need.
         """
@@ -294,10 +294,10 @@ export
         "short": "L"
         "type":  "boolean"
         "def":   false
-        "help":  "follow symbolic-links. (it affects only when the resursive option specified.)"
+        "help":  "follow symbolic-links. (requires 'recursive' option)"
         "desc":  """
           lookup files in symbolic-links target when watch directory. 
-          it affects only when the resursive option specified.
+          this option affects only when the resursive option is enabled.
         """
 
       * "label": "inject.content"
@@ -326,7 +326,7 @@ export
       * "label": "inject.which"
         "short": "F"
         "type":  "pattern"
-        "def":   "**/**.{php,htm,html,cgi,pl,rb}"
+        "def":   "**/**.{htm,html}"
         "help":  "specify pattern for injection target."
         "desc":  """
           specify pattern for injection target.

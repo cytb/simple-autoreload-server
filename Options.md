@@ -455,8 +455,8 @@ encoding for reading texts and inject target files
 watch-delay 
 ---
 
-delay time to supress duplicate watch event.
-(the watch event is often fired multiple times in short duration.)
+delay time to supress duplicate watch event (in milil-seconds).
+the watch event is often fired multiple times in short duration.
 
 |option||
 |:---|:---|
@@ -562,7 +562,7 @@ whether or not to logs actually is depends on behavior of client script.
 recursive 
 ---
 
-watch sub-directories recursively.
+watch sub-directories recursively. this may take a while at startup.
 the server does not detect cyclic structure and it may cause infinit loop.
 unset follow-symlinks option if need.
 
@@ -583,7 +583,7 @@ follow-symlinks
 ---
 
 lookup files in symbolic-links target when watch directory. 
-it affects only when the resursive option specified.
+this option affects only when the resursive option is enabled.
 
 |option||
 |:---|:---|
@@ -650,7 +650,7 @@ specify pattern for injection target.
 |short-flag| -F|
 |module| inject.which|
 |type| pattern
-|default| "\*\*/\*\*.{php,htm,html,cgi,pl,rb}"|
+|default| "\*\*/\*\*.{htm,html}"|
 
 
 

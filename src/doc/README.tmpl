@@ -1,21 +1,33 @@
 <%= pkg.name %> [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=master)](https://travis-ci.org/cytb/simple-autoreload-server)
 ========================
 
-A simple Web server on Node.js with Live/Autoreload feature.
+A simple Web server on Node.js with autoreload/livereload feature.
   - Reload statically on update the html files
   - Refresh dynamically on update the files like css, js, png, and etc.
   - No browser extensions are needed. (uses only WebSocket.)
+  - Broadcast handleable event on client side window.
 
 Usage
 ----
   1. Install simple-autoreload-server via npm.
+
      (e.g. npm install simple-autoreload-server)
 
   2. Start autoreload-server from command line.
+
      (e.g. autoreload-server -d ./ -p 8080)
 
   3. Open server url with your browser.
+
      (e.g. iexplore http://localhost:8080/)
+
+Installation
+--------------
+install this package via 'npm'.
+
+```sh
+npm install simple-autoreload-server
+```
 
 Command Line Usage
 ----
@@ -23,25 +35,7 @@ Command Line Usage
 autoreload-server [options] [root-dir] [port]
 ```
 
-Overview of Command Line Options
-----
-
-option | default | help
-:--- | :--- | :---
-<%
-  options.forEach(function(opt){
-    if( opt.nocli ){ return; }
-    var option = ("--"+opt.label) + (opt.short ? (", -"+opt.short) : "");
-    var def    = (opt.def != null) ? ('`' + opt.def + '`') : '';
-    var help   = opt.help;
-
-%>`<%= option %>` | <%= def %> | _<%= help %>_
-<%
-  });
-%>
-
-
-#### Example
+### Example
 
 ```sh
 autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
@@ -61,25 +55,64 @@ var server = launcher({
 });
 ```
 
-Client Module Usage
-----
-See examples, and "src/client.ls" for details.
+### Options
 
-#### Options
+Overview of Command Line Options
+----
+
+option | default | help
+:--- | :--- | :---
+<%
+  options.forEach(function(opt){
+    if( opt.nocli ){ return; }
+    var option = ("--"+opt.label) + (opt.short ? (", -"+opt.short) : "");
+    var def    = (opt.def != null) ? ('`' + opt.def + '`') : '';
+    var help   = opt.help;
+
+%>`<%= option %>` | <%= def %> | _<%= help %>_
+<%
+  });
+%>
 
 See [Options.md](./Options.md) for details.
+
+Client Module Usage
+----
+note: available only for the web page injected the built-in script module.
+
+currently, following events are handleable on client side.
+
+event   | desc
+:---    |:---
+update  | file update detected (only watched file).
+refresh | refresh request.
+reload  | reload request.
+scan    | before dom element scanning.
+open    | connected.
+close   | disconnected.
+message | received a message above.
+
+e.g.
+  window.addEventListener("AutoreloadClient.update", function(ev){...});
+
+
+Event listeners receive an event object with 'detail' key.
+and the 'detail' object has some of parameters below.
+
+key       | desc
+:---      |:---
+path      | path of file updated.
+url       | url of file updated.
+type      | original message type from server.
+scan      | scan target list.
+target    | dom object of refresh target.
+targetUrl | url of refresh target. (contained as dom attribute)
+
+See content of examples directory or "src/client.ls" for details.
 
 Version
 ----
 <%= pkg.version %>
-
-Installation
---------------
-install this package via 'npm'.
-
-```sh
-npm install simple-autoreload-server
-```
 
 License
 ----

@@ -1,27 +1,61 @@
 simple-autoreload-server [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=master)](https://travis-ci.org/cytb/simple-autoreload-server)
 ========================
 
-A simple Web server on Node.js with Live/Autoreload feature.
+A simple Web server on Node.js with autoreload/livereload feature.
   - Reload statically on update the html files
   - Refresh dynamically on update the files like css, js, png, and etc.
   - No browser extensions are needed. (uses only WebSocket.)
+  - Broadcast handleable event on client side window.
 
 Usage
 ----
   1. Install simple-autoreload-server via npm.
+
      (e.g. npm install simple-autoreload-server)
 
   2. Start autoreload-server from command line.
+
      (e.g. autoreload-server -d ./ -p 8080)
 
   3. Open server url with your browser.
+
      (e.g. iexplore http://localhost:8080/)
+
+Installation
+--------------
+install this package via 'npm'.
+
+```sh
+npm install simple-autoreload-server
+```
 
 Command Line Usage
 ----
 ```sh
 autoreload-server [options] [root-dir] [port]
 ```
+
+### Example
+
+```sh
+autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
+```
+
+Module Usage (Example)
+----
+```
+var launcher = require('simple-autoreload-server');
+
+var server = launcher({
+  port: 8008,
+  path: './',
+  listDirectory: true,
+  watch:  "*.{png,js,html,json,swf}"
+  reload: "{*.json,static.swf}"
+});
+```
+
+### Options
 
 Overview of Command Line Options
 ----
@@ -46,62 +80,61 @@ option | default | help
 `--include-hidden, -n` | `false` | _glob includes hidden files._
 `--default-pages` | `index.{htm,html}` | _default page file pattern for directory request._
 `--encoding` | `utf-8` | _encoding for reading texts and inject target files_
-`--watch-delay` | `20` | _delay time to supress duplicate watch event (in ms)._
+`--watch-delay` | `20` | _delay time to supress duplicate watch event (ms)._
 `--log, -v` | `normal` | _set log-level_
 `--builtin-script` | `true` | _enable default built-in script injection._
 `--client-module` | `true` | _expose client module to 'window' object._
 `--client-log` | `false` | _inform client to log._
-`--recursive, -R` | `true` | _watch sub-directories recursively. (may take a while at startup)_
-`--follow-symlinks, -L` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
+`--recursive, -R` | `true` | _watch sub-directories recursively._
+`--follow-symlinks, -L` | `false` | _follow symbolic-links. (requires 'recursive' option)_
 `--inject.content, -I` | `` | _injects specified content._
 `--inject.type, -T` | `file` | _type of "inject.content"._
-`--inject.which, -F` | `**/**.{php,htm,html,cgi,pl,rb}` | _specify pattern for injection target._
+`--inject.which, -F` | `**/**.{htm,html}` | _specify pattern for injection target._
 `--inject.where, -P` | `</(body|head|html)>` | _specify regex string where to inject._
 `--inject.prepend, -E` | `false` | _insert content before matched._
 `--help, -h` | `false` | _show help_
 `--version, -V` | `false` | _show version_
 
 
-
-#### Example
-
-```sh
-autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
-```
-
-Module Usage (Example)
-----
-```
-var launcher = require('simple-autoreload-server');
-
-var server = launcher({
-  port: 8008,
-  path: './',
-  listDirectory: true,
-  watch:  "*.{png,js,html,json,swf}"
-  reload: "{*.json,static.swf}"
-});
-```
+See [Options.md](./Options.md) for details.
 
 Client Module Usage
 ----
-See examples, and "src/client.ls" for details.
+note: available only for the web page injected the built-in script module.
 
-#### Options
+currently, following events are handleable on client side.
 
-See [Options.md](./Options.md) for details.
+event   | desc
+:---    |:---
+update  | file update detected (only watched file).
+refresh | refresh request.
+reload  | reload request.
+scan    | before dom element scanning.
+open    | connected.
+close   | disconnected.
+message | received a message above.
+
+e.g.
+  window.addEventListener("AutoreloadClient.update", function(ev){...});
+
+
+Event listeners receive an event object with 'detail' key.
+and the 'detail' object has some of parameters below.
+
+key       | desc
+:---      |:---
+path      | path of file updated.
+url       | url of file updated.
+type      | original message type from server.
+scan      | scan target list.
+target    | dom object of refresh target.
+targetUrl | url of refresh target. (contained as dom attribute)
+
+See content of examples directory or "src/client.ls" for details.
 
 Version
 ----
 0.1.5
-
-Installation
---------------
-install this package via 'npm'.
-
-```sh
-npm install simple-autoreload-server
-```
 
 License
 ----
