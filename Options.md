@@ -14,7 +14,7 @@ and an array of string passed to module.
 
 (e.g. --option a --option b => [ "a", "b" ])
 
-It is depends on the option that which value is chosen.
+It depends on the option that which value is chosen.
 
 number
 ---
@@ -35,7 +35,7 @@ pattern
 
   if additional parameter is provided, it is parsed as "glob pattern".
 
-  glob implementation is depends on minimatch v3.0.0.
+  glob implementation depends on minimatch v3.0.0.
   
   e.g.
     - --pattern-option => matches all
@@ -99,7 +99,7 @@ reload
 ---
 
 pattern for file to reload the whole page.
-whether or not to reload actually is depends on behavior of client script.
+whether or not to reload actually depends on behavior of client script.
 if true, it matches any files, and matches nothing on false.
 
 |option||
@@ -544,7 +544,7 @@ client-log
 
 inform client to log.
 the server only send a option to client on connect by this option.
-whether or not to logs actually is depends on behavior of client script.
+whether or not to logs actually depends on behavior of client script.
 
 |option||
 |:---|:---|
