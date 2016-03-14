@@ -58,6 +58,7 @@
     "version": "gulp build:document && git add .",
     "postversion": "git tag -f alpha && git push && git push --delete origin alpha && git push --tags"
   },
+  "readmeFilename": "README.md",
   "engines": {
     "node": ">=0.10.0"
   }
