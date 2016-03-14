@@ -48,6 +48,7 @@ option | default | help
 `--encoding` | `utf-8` | _encoding for reading texts and inject target files_
 `--watch-delay` | `20` | _delay time to supress duplicate watch event (in ms)._
 `--verbose, -v` | `false` | _enable verbose logging._
+`--silent` | `false` | _disable server logging._
 `--builtin-script` | `true` | _enable default built-in script injection._
 `--client-module` | `true` | _expose client module to 'window' object._
 `--client-log` | `false` | _inform client to log._
@@ -55,7 +56,7 @@ option | default | help
 `--follow-symlinks, -L` | `false` | _follow symbolic-links. (it affects only when the resursive option specified.)_
 `--inject.content, -I` | `` | _injects specified content._
 `--inject.type, -T` | `file` | _type of "inject.content"._
-`--inject.which, -F` | `**/**.{php,htm,html,cgi,pl,rb}` | _specify regex pattern for injection target._
+`--inject.which, -F` | `**/**.{php,htm,html,cgi,pl,rb}` | _specify pattern for injection target._
 `--inject.where, -P` | `</(body|head|html)>` | _specify regex string where to inject._
 `--inject.prepend, -E` | `false` | _insert content before matched._
 `--help, -h` | `false` | _show help_
@@ -66,7 +67,7 @@ option | default | help
 #### Example
 
 ```sh
-autoreload-server -w "\\.(html|css|js)" ./site-files 8008
+autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
 ```
 
 Module Usage (Example)
@@ -93,7 +94,7 @@ See [Options.md](./Options.md) for details.
 
 Version
 ----
-0.1.2
+0.1.3
 
 Installation
 --------------

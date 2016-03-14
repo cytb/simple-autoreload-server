@@ -44,7 +44,7 @@ process.chdir <| path.join.apply path, pathes.data
 @Tester = class Tester
   {touch,store,load,update,remove} = test-utils
 
-  ({@name,@expect-ext=".html",@log=false,@port=18888},done=(->))->
+  ({@name,@expect-ext=".html",@log=false,@port=18888,@no-port,@no-serv}={},done=(->))->
     @server = null
 
     (err,@phantom) <~ node-phantom-fork.create
@@ -93,11 +93,12 @@ process.chdir <| path.join.apply path, pathes.data
     bin = command-path
     arg = []
       ..push '--verbose' if @log
-      ..push (@data-path pathes.serv)
-      ..push ['--port', @port]
+      ..push (@data-path pathes.serv) if not @no-serv
+      ..push ['--port', @port] if not @no-port
 
     arg = flatten (arg ++ opts)
 
+    @logger \start-server-process, ("\"#{arg * '" "'}\"")
     @server-proc = proc.spawn bin, arg
 
     @server-proc.on \exit, ~>

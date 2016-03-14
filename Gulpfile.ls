@@ -39,11 +39,10 @@ watch = map-pairs (gulp.watch.apply gulp, _)
 pipe-line = (generator)->
   (->
     red = (pipe,next)->
-      next.on \error, ->
-        console.log arguments
-        next.emit "end"
+      next.on \error, (err)->
+        next.emit "error", err
 
-        pipe.pipe next
+      pipe.pipe next
 
     generator! |> (.filter (isnt null) |> (.reduce red))
   )
