@@ -471,36 +471,20 @@ delay time to supress duplicate watch event.
 ---
 
 
-verbose 
+log 
 ---
 
-enable verbose logging.
+set log mode. choose from followings.
+'silent' -> 'minimum' -> 'normal' -> 'verbose' -> 'noisy'
+(number also acceptable: silent is 0, minimum is 1, ..., and noisy is 4)
 
 |option||
 |:---|:---|
-|full-flag| --verbose|
+|full-flag| --log|
 |short-flag| -v|
-|module| verbose|
-|type| boolean
-|default| false|
-
-
-
----
-
-
-silent 
----
-
-disable server logging.
-
-|option||
-|:---|:---|
-|full-flag| --silent|
-|short-flag| (none)|
-|module| silent|
-|type| boolean
-|default| false|
+|module| log|
+|type| string
+|default| "normal"|
 
 
 

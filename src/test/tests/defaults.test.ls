@@ -14,7 +14,7 @@ describe "on default config", ->
     @checker = new ReloadChecker {
       name: 'default-config'
       port:12567
-      +log
+      log: "verbose"
     },{
       page-file: @html-file
       delay: 100ms

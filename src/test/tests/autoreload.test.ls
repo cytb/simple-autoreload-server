@@ -13,7 +13,7 @@ describe "client side script", ->
     @checker = new ReloadChecker {
       name: \client-code-injection
       port:12567
-      +log
+      log: "verbose"
     },{
       page-file: @html-file
       delay: 100ms

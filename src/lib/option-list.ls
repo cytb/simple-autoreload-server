@@ -227,22 +227,15 @@ export
           (the watch event is often fired multiple times in short duration.)
         """
 
-      * "label": "verbose"
+      * "label": "log"
         "short": "v"
-        "type":  "boolean"
-        "def":   false
-        "help":  "enable verbose logging."
+        "type":  "string"
+        "def":   "normal"
+        "help":  "set log-level"
         "desc":  """
-          enable verbose logging.
-        """
-
-      * "label": "silent"
-        "short": null
-        "type":  "boolean"
-        "def":   false
-        "help":  "disable server logging."
-        "desc":  """
-          disable server logging.
+          set log mode. choose from followings.
+          'silent' -> 'minimum' -> 'normal' -> 'verbose' -> 'noisy'
+          (number also acceptable: silent is 0, minimum is 1, ..., and noisy is 4)
         """
 
       * "label": "builtin-script"

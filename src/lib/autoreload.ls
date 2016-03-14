@@ -180,19 +180,34 @@ class SimpleAutoreloadServer
       @log "verbose", "options", "config loaded: #{file}"
       @log "verbose", "options", "change working directory to #{dir}"
 
-  log: (mode, tag, text)->
+  log-level:
+    * * level: \silent  tags: <[ ]>
+      * level: \minimum tags: <[ normal error ]>
+      * level: \normal  tags: <[ normal info error ]>
+      * level: \verbose tags: <[ normal info error verbose ]>
+      * level: \noisy   tags: <[ normal info error verbose debug ]>
 
-    return if @options.silent
-    return if (mode is \verbose) and not @options.verbose
+  log-level-map: {silent:0, minimum:1, normal:2, verbose:3, noisy:4}
+
+  get-log-level: (level = "normal")->
+    | typeof level is "boolean" => level and 2 or 0
+    | typeof level is "string" =>
+      for i from 0 til @log-level.length
+        return i if @log-level[i].level is level
+      2
+    | 0 <= level and level < @log-level.length => level
+    | _ => 2
+
+  log: (mode, tag, text)->
+    level = @get-log-level @options.log
+
+    return if not (mode in @log-level[level].tags)
 
     colored-tag = match mode
     | \error   => "error@#tag".red
-    | \normal  => tag.green
-    | \verbose => tag.green
     | _        => tag.green
 
     prefix = @@@log-prefix "localhost:#{@options.port}"
-
     console.log "#prefix #colored-tag #text"
 
   stop: ->
@@ -265,19 +280,19 @@ class SimpleAutoreloadServer
         @abspath = "#{path.resolve process.cwd!, listen.path}"
 
         for mounts.slice 1
-          @log "normal", "server", "mounted #{..path} to #{..target}"
+          @log "info", "server", "mounted #{..path} to #{..target}"
 
         @log "normal", "server", "started on :#{"#{listen.port}".green} at #{@abspath}"
 
         if @options.execute? and @options.execute
-          @log "normal", "server", "execute command: #{that}"
+          @log "info", "server", "execute command: #{that}"
           child = child_process.exec that, {stdio:\ignore}
             ..unref!
 
           if @options.stop-on-exit
-            @log "normal", "server", "server will stop when the command has exit."
+            @log "info", "server", "server will stop when the command has exit."
             child.on \exit, ~>
-              @log "normal", "server", "child command has finished."
+              @log "info", "server", "child command has finished."
               @stop!
 
         if @options.browse
@@ -290,7 +305,7 @@ class SimpleAutoreloadServer
             | "string" => @options.browse
             | _        => "http://#{address}:#{port}/"
 
-          @log "verbose", "server", "open #server-url"
+          @log "info", "server", "open #server-url"
           opener server-url, {stdio: \ignore} .unref!
 
         if done?
@@ -315,9 +330,9 @@ class SimpleAutoreloadServer
         error: ({message},src)~> @log "error", "watch", "#{src} Error: #message"
         update:(,target)~>
           if not matcher target
-            @log "verbose", "watch", "#{"(ignored)".cyan} #target"
+            @log "debug", "watch", "#{"(ignored)".cyan} #target"
           else
-            @log "normal", "watch", "updated #target"
+            @log "verbose", "watch", "updated #target"
             http-path = ''
             try if (path.relative dir.path, target) is /^[^/].*$/
               http-path := "/#{that.0}"
@@ -352,8 +367,9 @@ class SimpleAutoreloadServer
         ..content = path.resolve @basedir, ..content
 
     app = @options.connect-app ? connect!
+
     # logger
-    if @options.verbose
+    if (@get-log-level @options.log) >= @log-level.verbose
       app.use <| connect.logger '
         :ar-prefix :remote-addr :method 
         ":url HTTP/:http-version" 
@@ -373,7 +389,7 @@ class SimpleAutoreloadServer
   broadcast: (data)->
     try
       json = JSON.stringify data
-      @log "verbose", "broadcast", "to #{@websockets.length} sockets: #{json}"
+      @log "debug", "broadcast", "to #{@websockets.length} sockets: #{json}"
       for @websockets => ..send json
     catch ex
       @log "error", "broadcast", ex.message

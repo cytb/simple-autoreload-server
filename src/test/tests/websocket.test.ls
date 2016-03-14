@@ -25,7 +25,7 @@ describe "websocket server", ->
       @tester = new Tester {
         name: \websocket-echo
         expect-ext: \.json
-        +log
+        log: "verbose"
       }, it
 
     <~ new-tester

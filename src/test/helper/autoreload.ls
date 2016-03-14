@@ -92,7 +92,7 @@ process.chdir <| path.join.apply path, pathes.data
 
     bin = command-path
     arg = []
-      ..push '--verbose' if @log
+      ..push ['--log', @log] if @log
       ..push (@data-path pathes.serv) if not @no-serv
       ..push ['--port', @port] if not @no-port
 
@@ -117,7 +117,7 @@ process.chdir <| path.join.apply path, pathes.data
     @logger \start-server
     @stop-server!
 
-    opt.verbose ?= @log
+    opt.log  ?= (@log ? "normal")
     opt.port ?= @port
     opt.path ?= @data-path pathes.serv
 

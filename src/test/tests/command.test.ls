@@ -5,7 +5,7 @@ describe "command line script", ->
     @tester-options = {
       port: 12352
       name: 'touch-test'
-      +log
+      log: "verbose"
     }
 
     @stderr = []

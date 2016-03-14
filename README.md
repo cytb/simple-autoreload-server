@@ -47,8 +47,7 @@ option | default | help
 `--default-pages` | `index.{htm,html}` | _default page file pattern for directory request._
 `--encoding` | `utf-8` | _encoding for reading texts and inject target files_
 `--watch-delay` | `20` | _delay time to supress duplicate watch event (in ms)._
-`--verbose, -v` | `false` | _enable verbose logging._
-`--silent` | `false` | _disable server logging._
+`--log, -v` | `normal` | _set log-level_
 `--builtin-script` | `true` | _enable default built-in script injection._
 `--client-module` | `true` | _expose client module to 'window' object._
 `--client-log` | `false` | _inform client to log._
