@@ -93,6 +93,7 @@ class InjectionRouter
       text = fs.read-file-sync file, @{encoding}
       text = @injecters.reduce (->&1.inject file, &0), text
       res.set-header "Content-Length", Buffer.byte-length text
+      res.set-header "Content-Type", "text/html"
       res.end text, @encoding
     catch
       next!
