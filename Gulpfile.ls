@@ -21,7 +21,6 @@ require! <[
 require! {
   child_process: {spawn}
   'prelude-ls' : {Obj,obj-to-pairs,map}
-  './package.json': pkg
   './src/lib/option-list': {options}
   'lodash': {template}
 }
@@ -51,8 +50,10 @@ multi-pipe-line = map pipe-line
 
 # basic livescript builder
 get-template-param = ->
+  pkg = require './package.json'
   fig2 = ->
     it < 10 and ("0" + it.toString!) or it
+
 
   let @ = new Date
     {
@@ -123,6 +124,12 @@ task do
       gulp-rename {extname:".md"}
       gulp.dest './'
 
+  "build:package.json": ->
+    json   = 'package.json'
+    pkg    = require json
+    pkg.readme = fs.read-file-sync "README.md" .to-string!
+    fs.write-file-sync json, (JSON.stringify pkg, null, 2)
+
   "build:src":     <[ build:lib build:bin build:client ]>
   "build:release": <[ build:src build:doc ]>
 
@@ -130,7 +137,7 @@ task do
     * gulp.src <[ test/tests/*.test.js ]>
       gulp-spawn-mocha {}
   "test":     gulp.series <[ build:release clean:test build:test copy:test-data mocha ]>
-  "release":  gulp.series <[ test clean:test ]>
+  "release":  gulp.series <[ test clean:test build:package.json ]>
 
   "release-npm": gulp.series <[ release ]>
   "release-git": gulp.series <[ release clean:all  ]>
