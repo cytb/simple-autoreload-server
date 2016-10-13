@@ -42,7 +42,7 @@ export
           other 'mount.*' options are attached to corresponding path by order in commandline.
         """
         "examples":
-          * * "command": "autoreload -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build"
+          * * "command": "autoreload-server -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build"
               "result" : """
                 the server publishes content of './html', './node_modules' and './build' at 'https://localhost:8080/'.
                 if all of those directories contain 'index.html' and client requests 'https://localhost:8080/index.html',
@@ -58,7 +58,7 @@ export
           server side path of mounted direcory.
         """
         "examples":
-          * * "command": "autoreload . 8080 -m ./www/js -t /components"
+          * * "command": "autoreload-server . 8080 -m ./www/js -t /components"
               "result" : """
                 the server publishes content of './' to server-root(http://localhost:8080/),
                 "./www/js" to "/components" (http://localhost:8080/components/).
@@ -142,9 +142,9 @@ export
           the server does nothing if specified Boolean of 'false' or 'null'.
         """
         "examples":
-          * * "command": "autoreload -d . -p 8088 -H 192.168.1.15 -b"
+          * * "command": "autoreload-server -d . -p 8088 -H 192.168.1.15 -b"
               "result":  "opens https://192.168.1.15:8088/"
-            * "command": 'autoreload -d . -p 8088 -b "http://server1.localdomain:80/"'
+            * "command": 'autoreload-server -d . -p 8088 -b "http://server1.localdomain:80/"'
               "result":  'opens "http://server1.localdomain:80/"'
 
       * "label": "execute"
@@ -162,7 +162,7 @@ export
 
         """
         "examples":
-          * * "command": 'autoreload -e "firefox"'
+          * * "command": 'autoreload-server -e "firefox"'
               "result":  "opens firefox via shell"
 
       * "label": "stop-on-exit"

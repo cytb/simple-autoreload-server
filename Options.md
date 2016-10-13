@@ -135,7 +135,7 @@ other 'mount.*' options are attached to corresponding path by order in commandli
 
 ### Examples
 
-- autoreload -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build
+- autoreload-server -H localhost -p 8080 -m ./html -m ./node_modules --mount.path ./build
 
   the server publishes content of './html', './node_modules' and './build' at 'https://localhost:8080/'.
 if all of those directories contain 'index.html' and client requests 'https://localhost:8080/index.html',
@@ -162,7 +162,7 @@ server side path of mounted direcory.
 
 ### Examples
 
-- autoreload . 8080 -m ./www/js -t /components
+- autoreload-server . 8080 -m ./www/js -t /components
 
   the server publishes content of './' to server-root(http://localhost:8080/),
 "./www/js" to "/components" (http://localhost:8080/components/).
@@ -311,12 +311,12 @@ the server does nothing if specified Boolean of 'false' or 'null'.
 
 ### Examples
 
-- autoreload -d . -p 8088 -H 192.168.1.15 -b
+- autoreload-server -d . -p 8088 -H 192.168.1.15 -b
 
   opens https://192.168.1.15:8088/
 
 
-- autoreload -d . -p 8088 -b "http://server1.localdomain:80/"
+- autoreload-server -d . -p 8088 -b "http://server1.localdomain:80/"
 
   opens "http://server1.localdomain:80/"
 
@@ -347,7 +347,7 @@ and then the server invokes with each values.
 
 ### Examples
 
-- autoreload -e "firefox"
+- autoreload-server -e "firefox"
 
   opens firefox via shell
 

@@ -35,7 +35,8 @@ Command Line Usage
 autoreload-server [options] [root-dir] [port]
 ```
 
-### Example
+### Example 1
+Start server with options.
 
 ```sh
 autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
@@ -55,9 +56,40 @@ var server = launcher({
 });
 ```
 
-### Options
+### Example 2
+Start server with json instead of commandline-options.
 
-Overview of Command Line Options
+command
+```sh
+autoreload-server
+```
+
+content of .autoreload.json
+```sh
+{
+  "watch":  "**/**.html",
+  "reload": "**/**.html",
+  "mount": [
+    {
+      "path":   "modules/",
+      "target": "/"
+    }
+  ],
+  "inject": [
+    {
+      "content": "before-body.html",
+      "which":   "**/**.html",
+      "where":   "</body>",
+      "prepend": true
+    }
+  ]
+}
+```
+
+** In case of using another config json file instead of ".autoreload.json", invoke command with '-c' or '--config' option.
+** See [Options.md](./Options.md) and [config.json in examples](./examples/markdown-parser/config.json) for details.
+
+Command Line Options
 ----
 
 option | default | help
