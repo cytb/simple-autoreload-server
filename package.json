@@ -58,7 +58,7 @@
   "scripts": {
     "prepublish": "gulp release-npm && npm prune",
     "test": "gulp test",
-    "version": "gulp build:document && git add .",
+    "version": "gulp npm-version && git add -A",
     "postversion": "git tag -f alpha && git push && git push --delete origin alpha && git push --tags"
   },
   "engines": {

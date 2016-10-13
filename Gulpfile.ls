@@ -139,6 +139,7 @@ task do
   "test":     gulp.series <[ build:release clean:test build:test copy:test-data mocha ]>
   "release":  gulp.series <[ test clean:test build:package.json ]>
 
+  "npm-version": gulp.series <[ build:document build:package.json ]>
   "release-npm": gulp.series <[ release ]>
   "release-git": gulp.series <[ release clean:all  ]>
 
