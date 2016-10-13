@@ -187,7 +187,7 @@ or see '[src/client.ls](./src/client.ls)' for more information.
 
 Version
 ----
-0.2.3
+0.2.4
 
 License
 ----
