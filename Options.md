@@ -35,7 +35,7 @@ pattern
 
   if additional parameter is provided, it is parsed as "glob pattern".
 
-  glob implementation depends on minimatch v3.0.0.
+  glob implementation depends on minimatch v3.0.2.
   
   e.g.
     - --pattern-option => matches all

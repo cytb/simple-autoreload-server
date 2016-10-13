@@ -1,6 +1,8 @@
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "Example code", ->
-  before (done)->
+  before-each (done)->
     @timeout = 8000ms
     done!
 
@@ -13,10 +15,10 @@ describe "Example code", ->
       tester.start-server-process cmd, (ar)~>
         ar.stderr.on \data, stderr~push
         ar.stdout.on \data, ~>
-          stdout.push it
+          stdout.push "#it"
           console.log "#it"
-          assert.equals stderr.length, 0,  'assure no error on startup'
-          assert.match  stdout.0, 'start', 'assure started successfully'
+          assert.equal stderr.length, 0,  'assure no error on startup'
+          assert.include  stdout.0, 'start', 'assure started successfully'
           tester.finalize!
           done!
 

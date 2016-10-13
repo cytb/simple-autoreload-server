@@ -1,8 +1,9 @@
-
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "on default config", ->
 
-  before-all (done)->
+  before (done)->
     @timeout = 10000ms
 
     @config-file  = '.autoreload.json'
@@ -17,7 +18,7 @@ describe "on default config", ->
       log: "verbose"
     },{
       page-file: @html-file
-      delay: 100ms
+      delay: 300ms
     }
 
     <~ @checker.init
@@ -54,7 +55,7 @@ describe "on default config", ->
 
     done!
 
-  after-all ->
+  after ->
     @remove-data @inject-file
     @remove-data @config-file
     @fin!
@@ -79,35 +80,35 @@ describe "on default config", ->
       evaluator: -> window.injectTestId
 
       done: ({pre,post})~>
-        refute.equals pre.loaded, post.loaded,  "generated pre-id shouldnt equals post-id"
-        refute.equals pre.result, post.result,  "generated pre-id result shouldnt equals post-id result"
-        assert.equals pre.loaded, pre.result,   "generated pre-id should equals pre-id result"
-        assert.equals post.loaded, post.result, "generated post-id should equals post-id result"
+        assert.not-equal pre.loaded, post.loaded,  "generated pre-id shouldnt equals post-id"
+        assert.not-equal pre.result, post.result,  "generated pre-id result shouldnt equals post-id result"
+        assert.equal pre.loaded, pre.result,   "generated pre-id should equals pre-id result"
+        assert.equal post.loaded, post.result, "generated post-id should equals post-id result"
         done!
 
   It "shouldn't refresh/reload on update 'js' as described in default config.", (done)->
-      @check do
-        server-option: {+reload}
-        loader: ~>
-          id = random-string 16
-          @update @js-file, "window.testId = '#id';"
-          {id}
+    @check do
+      server-option: {+reload}
+      loader: ~>
+        id = random-string 16
+        @update @js-file, "window.testId = '#id';"
+        {id}
 
-        evaluator: ->
-          id:    window.test-id
-          mtime: window.load-time
+      evaluator: ->
+        id:    window.test-id
+        mtime: window.load-time
 
-        done: ({pre,post})~>
-          assert.equals pre.result.mtime, post.result.mtime,
-            "modified time must be same"
+      done: ({pre,post})~>
+        assert.equal pre.result.mtime, post.result.mtime,
+          "modified time must be same"
 
-          assert.equals pre.result.id, pre.loaded.id,
-            "browser's id must match to generated one (pre)"
+        assert.equal pre.result.id, pre.loaded.id,
+          "browser's id must match to generated one (pre)"
 
-          refute.equals post.result.id, post.loaded.id,
-            "browser's id must match to generated one (post)"
+        assert.not-equal post.result.id, post.loaded.id,
+          "browser's id must match to generated one (post)"
 
-          done!
+        done!
 
   It "refresh 'css' file on 'update'", (done)->
     file = @css-file
@@ -126,13 +127,13 @@ describe "on default config", ->
           mtime: window.load-time
 
       done: ({pre,post})~>
-        assert.equals pre.result.mtime, post.result.mtime,
+        assert.equal pre.result.mtime, post.result.mtime,
           "modified time must be same"
 
-        assert.match pre.result.css, pre.loaded.font,
+        assert.include pre.result.css, pre.loaded.font,
           "browser style must be set (pre)"
 
-        assert.match post.result.css, post.loaded.font,
+        assert.include post.result.css, post.loaded.font,
           "browser style must be set (post)"
 
         done!

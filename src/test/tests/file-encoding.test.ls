@@ -1,7 +1,9 @@
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "autoreload-server as http server", ->
 
-  before (done)->
+  before-each (done)->
     @timeout = 8000ms
     @tester-options = {
       port: 12354
@@ -27,7 +29,7 @@ describe "autoreload-server as http server", ->
     (@tester)<~ new Tester @tester-options
     set-timeout done, 0ms
 
-  after (done)->
+  after-each (done)->
     @tester.finalize!
     done!
 
@@ -39,7 +41,7 @@ describe "autoreload-server as http server", ->
     require! http
     url = @tester.get-web-url "utf8-bom.html"
     http.get url, ->
-      assert.equals (it.headers.'content-type'), "text/html", "should gives text/html as content-type"
+      assert.equal (it.headers.'content-type'), "text/html", "should gives text/html as content-type"
       if not ok
         ok := true
         done!

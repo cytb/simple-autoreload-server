@@ -1,6 +1,9 @@
+{assert} = require \chai
+require \../helper/autoreload .expose global
+
 describe "watch module", ->
 
-  before-all (done)->
+  before (done)->
     @timeout = 2000ms
     require! {
       path

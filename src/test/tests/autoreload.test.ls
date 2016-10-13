@@ -1,8 +1,9 @@
-
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "client side script", ->
 
-  before-all (done)->
+  before (done)->
     @timeout = 8000ms
 
     @html-file  = 'touch-test.html'
@@ -16,7 +17,7 @@ describe "client side script", ->
       log: "verbose"
     },{
       page-file: @html-file
-      delay: 100ms
+      delay: 400ms
     }
 
     <~ @checker.init
@@ -51,7 +52,8 @@ describe "client side script", ->
     # evaluate-twice (pre and post)
     done!
 
-  after-all -> @fin!
+  after -> @fin!
+
 
   It "should let browser 'reload' 'html'
       on 'touch'.", (done)->
@@ -61,7 +63,7 @@ describe "client side script", ->
       evaluator: -> window.loadTime
 
       done: ({pre,post})~>
-        refute.equals pre.result, post.result
+        assert.not-equal pre.result, post.result
         done!
 
   It "should let browser 'reload' 'html'
@@ -73,8 +75,9 @@ describe "client side script", ->
       evaluator: -> window.loadTime
 
       done: ({pre,post})~>
-        refute.equals pre.result, post.result
+        assert.not-equal pre.result, post.result
         done!
+
 
   It "should 'not' let browser 'reload' 'html'
       on 'update' the js.", (done)->
@@ -83,7 +86,7 @@ describe "client side script", ->
       loader:    ~> @update @js-file
       evaluator: -> window.loadTime
       done: ({pre,post})~>
-        assert.equals pre.result, post.result
+        assert.equal pre.result, post.result
         done!
 
   describe "should let browser 'refresh'",->
@@ -101,13 +104,13 @@ describe "client side script", ->
           mtime: window.load-time
 
         done: ({pre,post})~>
-          assert.equals pre.result.mtime, post.result.mtime,
+          assert.equal pre.result.mtime, post.result.mtime,
             "modified time must be same"
 
-          assert.equals pre.result.id, pre.loaded.id,
+          assert.equal pre.result.id, pre.loaded.id,
             "browser's id must match to generated one (pre)"
 
-          assert.equals post.result.id, post.loaded.id,
+          assert.equal post.result.id, post.loaded.id,
             "browser's id must match to generated one (post)"
 
           done!
@@ -129,13 +132,13 @@ describe "client side script", ->
             mtime: window.load-time
 
         done: ({pre,post})~>
-          assert.equals pre.result.mtime, post.result.mtime,
+          assert.equal pre.result.mtime, post.result.mtime,
             "modified time must be same"
 
-          assert.match pre.result.css, pre.loaded.font,
+          assert.include pre.result.css, pre.loaded.font,
             "browser style must be set (pre)"
 
-          assert.match post.result.css, post.loaded.font,
+          assert.include post.result.css, post.loaded.font,
             "browser style must be set (post)"
 
           done!
@@ -163,6 +166,6 @@ describe "client side script", ->
       evaluator: -> window.load-time
 
       done: ({pre,post})~>
-        assert.equals pre.result, post.result
+        assert.equal pre.result, post.result
         done!
 

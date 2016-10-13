@@ -1,6 +1,8 @@
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "command line script", ->
-  before (done)->
+  before-each (done)->
     @timeout = 8000ms
     @tester-options = {
       port: 12352
@@ -18,7 +20,7 @@ describe "command line script", ->
         @ar.stderr.on \data, @stderr~push
         @ar.stdout.on \data, ~>
           console.log "#it"
-          @stdout.push it
+          @stdout.push "#it"
           if first
             first := false
             set-timeout complete, 0ms
@@ -30,7 +32,7 @@ describe "command line script", ->
     @html-path = @tester.get-page-path!
     set-timeout done, 0ms
 
-  after (done)->
+  after-each (done)->
     @tester.finalize!
     done!
 
@@ -42,8 +44,10 @@ describe "command line script", ->
       delayed 100ms, &callee
       return
 
-    assert.equals @stderr.length, 0,       'assure no error on startup'
-    assert.match  @stdout.1,      'start', 'assure started successfully'
+
+    assert.equal   @stderr.length, 0,       'assure no error on startup'
+    assert.include @stdout.1,      'start', 'assure started successfully'
+    assert.equal   @stderr.length, 0,       'assure no error on startup'
 
     <~ delayed 100ms
     done!
@@ -58,7 +62,7 @@ describe "command line script", ->
     <~ @start
 
     <~ delayed 300ms
-    assert.match (@tester.open-data out-file), random.to-string!, 'should match generated random int.'
+    assert.include (@tester.open-data out-file).to-string!, random.to-string!, 'should match generated random int.'
     done!
 
   It "should stop server with handled-error message if already started on same addr.", (done)->
@@ -71,11 +75,11 @@ describe "command line script", ->
       err = []
 
       ar.stderr.on \data, err~push
-      ar.stdout.on \data, out~push
+      ar.stdout.on \data, -> out~push "#it"
 
       <~ ar.on \exit
-      assert.equals err.length, 0,  "#{err.map (.to-string!)}, should not print handled error to 'stderr'."
-      assert.match  out.1, "error", "should print handled error to 'stdout'."
+      assert.equal err.length, 0,  "#{err.map (.to-string!)}, should not print handled error to 'stderr'."
+      assert.include  out.1, "error", "should print handled error to 'stdout'."
 
       t.finalize!
       done!
@@ -99,16 +103,13 @@ describe "command line script", ->
 
     <~ delayed 400ms
     (page) <~ @tester.get-web-phantom @html-path
-    (err,result-pre) <~ page.evaluate evaluator
-
-    if err then throw that
+    (result-pre) <~ page.evaluate evaluator .then
     @update-html!
-    <~ delayed 200ms
 
-    (err,result-post) <~ page.evaluate evaluator
-    if err then throw that
+    <~ delayed 400ms
 
-    refute.equals result-pre, result-post
+    (result-post) <~ page.evaluate evaluator .then
+    assert.not-equal result-pre, result-post
     done!
 
 

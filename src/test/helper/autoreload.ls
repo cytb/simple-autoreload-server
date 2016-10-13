@@ -1,4 +1,3 @@
-<- (.call (global ? @))
 
 pathes =
   data: <[ test data ]>
@@ -7,241 +6,255 @@ pathes =
   fixture: <[ fixture ]>
   command: <[ bin autoreload ]>
 
-buster = require \buster
-buster.spec.expose @
-@{assert,refute,expect,test-case} = buster
-
-# @log = buster.console~log
-
-# for LiveScript
-@It = @it
-
-# require 
 require! {
-  'prelude-ls'
+  mocha
+  'prelude-ls': {flatten}
   path
   #node-phantom: \node-phantom-simple # error: netstat
-  'node-phantom-fork'
+  phantom: phantom-js
   http
   connect
   'child_process': proc
   colors
   '../lib/test-utils'
   '../../index': autoreload
+  'es6-promise': {Promise}
+  'es6-map': Map
 }
 
-{flatten} = prelude-ls
-{new-copy} = test-utils
-
-@{delayed,random-string} = test-utils
-
+# require 
 # change base
+#
 command-path = path.resolve process.cwd!, (path.join.apply path, pathes.command)
 process.chdir <| path.join.apply path, pathes.data
 
-# When = ``when``
+exposer = ->
 
-@Tester = class Tester
-  {touch,store,load,update,remove} = test-utils
+  # mocha.spec.expose @
+  # @{it,assert,refute,expect,test-case} = mocha
+  @{delayed,random-string} = test-utils
 
-  ({@name,@expect-ext=".html",@log=false,@port=18888,@no-port,@no-serv}={},done=(->))->
-    @server = null
+  @Promise = Promise
+  @Map     = Map
 
-    (err,@phantom) <~ node-phantom-fork.create
-    if err then throw that
+  # @log = buster.console~log
 
-    (err,@page) <~ @phantom.create-page
-    if err then throw that
+  # for LiveScript
+  @It = @it
 
-    @page.onConsoleMessage = ~>
-      @logger "phantom console.log>".magenta, it
+  # When = ``when``
 
-    @page.onError = ([msg,stack])~>
-      @logger "phantom error>".red, msg
-      for stack
-        @logger "phantom error>".red, ..file, ..line, ..function
+  @Tester = class Tester
+    {touch,store,load,update,remove} = test-utils
 
+    ({@name,@expect-ext=".html",@log=false,@port=18888,@no-port,@no-serv}={},done=(->))->
+      @server = null
 
-    done @
+      phantom-js.create!
+      .then (@phantom)~>
+        @phantom.create-page!
 
-  logger: (...texts)->
-    @log and console.log do
-      ((["[Tester #{Date.now!}] #{@name}".yellow ] ++ texts) * ' ')
+      .then (@page)~>
+        @page.on \onConsoleMessage, ~>
+          @logger "phantom console.log>".magenta, it
 
-  finalize: (done=->)->
-    @logger \finalize
-    @page?.close!
-    @phantom?.exit!
-    @stop-server!
-    @kill-server-process!
-    done!
+        @page.on \onError, ([msg,stack])~>
+          @logger "phantom error>".red, msg
+          for stack
+            @logger "phantom error>".red, ..file, ..line, ..function
 
-  data-path: (...names)->
-    joined = path.join.apply path, (flatten names)
+        done @
+        true
 
-    @logger \data-path, joined
-    joined
+      .catch (err)->
+        console.log err
+        console.log err.stack
 
-  open-data: (...names)->
-    console.log path.resolve (@data-path names)
-    @do-file-func (@data-path names), \open-data, load
+        throw err
 
-  start-server-process: (opts=[],done=->)->
-    @logger \start-server-process
-    @kill-server-process!
+    logger: (...texts)->
+      @log and console.log do
+        ((["[Tester #{Date.now!}] #{@name}".yellow ] ++ texts) * ' ')
 
-    bin = command-path
-    arg = []
-      ..push ['--log', @log] if @log
-      ..push (@data-path pathes.serv) if not @no-serv
-      ..push ['--port', @port] if not @no-port
+    finalize: (done=->)->
+      @logger \finalize
+      @page?.close!
+      @phantom?.exit!
+      @stop-server!
+      @kill-server-process!
+      done!
 
-    arg = flatten (arg ++ opts)
+    data-path: (...names)->
+      joined = path.join.apply path, (flatten names)
 
-    @logger \start-server-process, ("\"#{arg * '" "'}\"")
-    @server-proc = proc.spawn bin, arg
+      @logger \data-path, joined
+      joined
 
-    @server-proc.on \exit, ~>
+    open-data: (...names)->
+      console.log path.resolve (@data-path names)
+      @do-file-func (@data-path names), \open-data, load
+
+    start-server-process: (opts=[],done=->)->
+      @logger \start-server-process
+      @kill-server-process!
+
+      bin = command-path
+      arg = []
+        ..push ['--log', @log] if @log
+        ..push (@data-path pathes.serv) if not @no-serv
+        ..push ['--port', @port] if not @no-port
+
+      arg = flatten (arg ++ opts)
+
+      @logger \start-server-process, ("\"#{arg * '" "'}\"")
+      @server-proc = proc.spawn bin, arg
+
+      @server-proc.on \exit, ~>
+        @server-proc = null
+
+      done @server-proc
+
+    kill-server-process: (sig='SIGKILL',done=->)->
+      @logger \kill-server-process
+      @server-proc?.kill sig
+
       @server-proc = null
+      done!
 
-    done @server-proc
+    start-server: (opt={},done=->)->
+      @logger \start-server
+      @stop-server!
 
-  kill-server-process: (sig='SIGKILL',done=->)->
-    @logger \kill-server-process
-    @server-proc?.kill sig
+      opt.log  ?= (@log ? "normal")
+      opt.port ?= @port
+      opt.path ?= @data-path pathes.serv
 
-    @server-proc = null
-    done!
+      @server = autoreload opt
+      done!
 
-  start-server: (opt={},done=->)->
-    @logger \start-server
-    @stop-server!
+    stop-server: ->
+      @logger \stop-server
+      @server?.stop!
+      @server = null
 
-    opt.log  ?= (@log ? "normal")
-    opt.port ?= @port
-    opt.path ?= @data-path pathes.serv
+    check-server: ->
+      @logger \check-server
+      @server or @server-proc or throw new Error do
+        'server has not been prepared.'
+      true
 
-    @server = autoreload opt
-    done!
+    get-page-path: (file="#{@name}.html")->file
 
-  stop-server: ->
-    @logger \stop-server
-    @server?.stop!
-    @server = null
+    get-web-url: (file)->
+      page-path = @get-page-path file
+      port  = @server?.options?.port or @port
+      "http://localhost:#{port ? 80}/#{page-path}"
 
-  check-server: ->
-    @logger \check-server
-    @server or @server-proc or throw new Error do
-      'server has not been prepared.'
-    true
+    get-web-page: (file, done)->
+      url = (@get-web-url file)
+      @logger \get-web-page, url
 
-  get-page-path: (file="#{@name}.html")->file
+      @check-server!
+        and http.get url, done
 
-  get-web-url: (file)->
-    page-path = @get-page-path file
-    port  = @server?.options?.port or @port
-    "http://localhost:#{port ? 80}/#{page-path}"
+    get-web-phantom: (file,done)->
+      url = (@get-web-url file)
+      @logger \get-web-phantom, url
 
-  get-web-page: (file, done)->
-    url = (@get-web-url file)
-    @logger \get-web-page, url
+      if @check-server!
+        @page.open url .then ~>
+          done @page, it
 
-    @check-server!
-      and http.get url, done
+    get-expect-json: (file)->
+      @logger \get-expect-json
+      @get-expect-file file
 
-  get-web-phantom: (file,done)->
-    url = (@get-web-url file)
-    @logger \get-web-phantom, url
+    get-expect-file: (file)->
+      @logger \get-expect-file, file
+      @open-data do
+        pathes.expect, @name, (file + @expect-ext)
 
-    @check-server!
-      and @page.open url, ~>done @page, it
+    get-state: ->
+      state:  it and 'ok'.green or 'ng'.red
+      result: it
 
-  get-expect-json: (file)->
-    @logger \get-expect-json
-    @get-expect-file file
+    store-serv-file: (file,data)->
+      @do-serv-file-func  file, \store, (store _, data)
 
-  get-expect-file: (file)->
-    @logger \get-expect-file, file
-    @open-data do
-      pathes.expect, @name, (file + @expect-ext)
+    touch-serv-file: (file)->
+      @do-serv-file-func  file, \touch, touch
 
-  get-state: ->
-    state:  it and 'ok'.green or 'ng'.red
-    result: it
+    update-serv-file: (file,data)->
+      @do-serv-file-func file, \update, (update _, data)
 
-  store-serv-file: (file,data)->
-    @do-serv-file-func  file, \store, (store _, data)
+    update-data-file: (file,data)->
+      file = @data-path file
+      @do-file-func file, \update, (update _, data)
 
-  touch-serv-file: (file)->
-    @do-serv-file-func  file, \touch, touch
+    remove-serv-file: (file,data)->
+      @do-serv-file-func  file, \remove, (remove _, data)
 
-  update-serv-file: (file,data)->
-    @do-serv-file-func file, \update, (update _, data)
+    remove-data-file: (file,data)->
+      file = @data-path file
+      @do-file-func file, \remove, (remove _, data)
 
-  update-data-file: (file,data)->
-    file = @data-path file
-    @do-file-func file, \update, (update _, data)
+    do-serv-file-func: (serv-file,name,func)->
+      file = @data-path pathes.serv, serv-file
+      @do-file-func file, name, func
 
-  remove-serv-file: (file,data)->
-    @do-serv-file-func  file, \remove, (remove _, data)
+    do-file-func: (file,name,func)->
+      suc = @get-state (func file)
+      @logger name, suc.state, file
+      suc.result
 
-  remove-data-file: (file,data)->
-    file = @data-path file
-    @do-file-func file, \remove, (remove _, data)
+  # Load Page Twice (pre/post Phase)
+  @ReloadChecker = class ReloadChecker
+    (@tester-option,def-opt)->
+      return new &callee &0, &1, &2 if @@@ isnt &callee
 
-  do-serv-file-func: (serv-file,name,func)->
-    file = @data-path pathes.serv, serv-file
-    @do-file-func file, name, func
+      @set-default-option def-opt
 
-  do-file-func: (file,name,func)->
-    suc = @get-state (func file)
-    @logger name, suc.state, file
-    suc.result
+    init: (done)->
+      @tester = new Tester @tester-option, done
 
-# Load Page Twice (pre/post Phase)
-@ReloadChecker = class ReloadChecker
-  (@tester-option,def-opt)->
-    return new &callee &0, &1, &2 if @@@ isnt &callee
+    set-default-option: (@default-option={server-option:{},delay:50ms})->
 
-    @set-default-option def-opt
+    set-option: (option-arg)->
+      @option = test-utils.new-copy do
+        option-arg, @default-option
 
-  init: (done)->
-    @tester = new Tester @tester-option, done
+    check: (option={})->
+      @set-option option
 
-  set-default-option: (@default-option={server-option:{},delay:50ms})->
+      <~ @tester.start-server @option.server-option
 
-  set-option: (option-arg)->
-    @option = new-copy do
-      option-arg, @default-option
+      <~ delayed @option.delay
+      loaded-pre = @option.loader!
+      (page) <~ @tester.get-web-phantom @option.page-file
 
-  check: (option={})->
-    @set-option option
+      <~ delayed @option.delay
+      (result-pre) <~ page.evaluate @option.evaluator .then
+      loaded-post = @option.loader!
 
-    <~ @tester.start-server @option.server-option
+      <~ delayed @option.delay
 
-    <~ delayed @option.delay
-    loaded-pre = @option.loader!
-    (page) <~ @tester.get-web-phantom @option.page-file
+      (result-post) <~ page.evaluate @option.evaluator .then
 
-    <~ delayed @option.delay
-    (err,result-pre) <~ page.evaluate @option.evaluator
 
-    if err then throw that
-    loaded-post = @option.loader!
+      @tester.stop-server!
 
-    <~ delayed @option.delay
-    (err,result-post) <~ page.evaluate @option.evaluator
-    if err then throw that
+      @option.done {
+        pre:
+          loaded: loaded-pre
+          result: result-pre
+        post:
+          loaded: loaded-post
+          result: result-post
+      }
+      # page.close!
+      #
 
-    @tester.stop-server!
-
-    @option.done {
-      pre:
-        loaded: loaded-pre
-        result: result-pre
-      post:
-        loaded: loaded-post
-        result: result-post
-    }
-    # page.close!
+export do
+  expose: (this-obj)->
+    exposer.call this-obj
 

@@ -1,7 +1,9 @@
+{assert} = require \chai
+require \../helper/autoreload .expose global
 
 describe "websocket server", ->
 
-  before-all (done)->
+  before (done)->
 
     @timeout = 5000ms
 
@@ -15,7 +17,7 @@ describe "websocket server", ->
       msg = -> "expects content of the file '#file': (#{it})"
 
       if data?
-        assert.match S(data), e, (msg data)
+        assert.include S(data), e, (msg data)
       else
         assert do
           @messages.some -> deep-match S(it), e
@@ -45,10 +47,10 @@ describe "websocket server", ->
     (@page) <~ @tester.get-web-phantom @file
     done!
 
-  before ->
+  before-each ->
     @messages = []
 
-  after-all ->
+  after ->
     @tester.finalize!
 
   It "should be connected successfully.", (done)->

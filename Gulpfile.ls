@@ -14,7 +14,7 @@ require! <[
   gulp-rename
   gulp-concat
   gulp-chmod
-  gulp-busterjs 
+  gulp-spawn-mocha
   run-sequence
 ]>
 
@@ -84,7 +84,7 @@ task do
 
   'with-debug': gulp.series <[ debug-on auto-reload ]>
 
-  "clean:test": -> del <[ test/ buster.js ]>
+  "clean:test": -> del <[ test/ mocha.js ]>
   "clean:lib":  -> del <[ lib/ index.js ]>
   "clean:bin":  -> del <[ bin/ ]>
   "clean:client":  -> del <[ client.html ]>
@@ -126,15 +126,10 @@ task do
   "build:src":     <[ build:lib build:bin build:client ]>
   "build:release": <[ build:src build:doc ]>
 
-  "buster-js": pipe-line ->
+  "mocha": pipe-line ->
     * gulp.src <[ test/tests/*.test.js ]>
-      gulp-busterjs do
-        name:         "tests"
-        root-path:    \./
-        environment:  \node
-        test-helpers: <[ test/helper/autoreload.js ]>
-
-  "test":     gulp.series <[ build:release clean:test build:test copy:test-data buster-js ]>
+      gulp-spawn-mocha {}
+  "test":     gulp.series <[ build:release clean:test build:test copy:test-data mocha ]>
   "release":  gulp.series <[ test clean:test ]>
 
   "release-npm": gulp.series <[ release ]>
