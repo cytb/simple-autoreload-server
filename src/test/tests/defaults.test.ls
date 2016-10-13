@@ -18,7 +18,7 @@ describe "on default config", ->
       log: "verbose"
     },{
       page-file: @html-file
-      delay: 300ms
+      delay: 500ms
     }
 
     <~ @checker.init
@@ -60,7 +60,7 @@ describe "on default config", ->
     @remove-data @config-file
     @fin!
 
-  It "should inject defualt html file" , (done)->
+  It "should inject default html file" , (done)->
 
     @check do
       loader: ~>
