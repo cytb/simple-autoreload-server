@@ -125,7 +125,7 @@ task do
       gulp.dest './'
 
   "build:package.json": ->
-    json   = 'package.json'
+    json   = './package.json'
     pkg    = require json
     pkg.readme = fs.read-file-sync "README.md" .to-string!
     fs.write-file-sync json, (JSON.stringify pkg, null, 2)
