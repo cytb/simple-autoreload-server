@@ -71,8 +71,8 @@ content of .autoreload.json
 }
 ```
 
-***In case of using another config json file instead of ".autoreload.json", invoke command with '-c' or '--config' option.
-***See [Options.md](./Options.md) and [config.json in examples](./examples/markdown-parser/config.json) for details.
+***In case of using another config json file instead of ".autoreload.json", invoke command with '-c' or '--config' option.***
+***See [Options.md](./Options.md) and [config.json in examples](./examples/markdown-parser/config.json) for details.***
 
 ### Example 3
 as module.
