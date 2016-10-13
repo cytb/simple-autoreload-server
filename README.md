@@ -41,21 +41,6 @@ Start server with options.
 ```sh
 autoreload-server -w "**/**.{html,css,js}" ./site-files 8008
 ```
-
-Module Usage (Example)
-----
-```
-var launcher = require('simple-autoreload-server');
-
-var server = launcher({
-  port: 8008,
-  path: './',
-  listDirectory: true,
-  watch:  "*.{png,js,html,json,swf}"
-  reload: "{*.json,static.swf}"
-});
-```
-
 ### Example 2
 Start server with json instead of commandline-options.
 
@@ -88,6 +73,22 @@ content of .autoreload.json
 
 ** In case of using another config json file instead of ".autoreload.json", invoke command with '-c' or '--config' option.
 ** See [Options.md](./Options.md) and [config.json in examples](./examples/markdown-parser/config.json) for details.
+
+### Example 3
+as module.
+
+```
+var launcher = require('simple-autoreload-server');
+
+var server = launcher({
+  port: 8008,
+  path: './',
+  listDirectory: true,
+  watch:  "*.{png,js,html,json,swf}"
+  reload: "{*.json,static.swf}"
+});
+```
+
 
 Command Line Options
 ----
