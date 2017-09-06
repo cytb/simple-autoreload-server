@@ -26,7 +26,7 @@ Installation
 install this package via 'npm'.
 
 ```sh
-npm install simple-autoreload-server
+npm install -g simple-autoreload-server
 ```
 
 Command Line Usage
@@ -188,7 +188,7 @@ or see '[src/client.ls](./src/client.ls)' for more information.
 
 Version
 ----
-0.2.6
+0.2.7
 
 License
 ----
