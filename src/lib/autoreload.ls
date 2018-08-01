@@ -9,7 +9,11 @@ require! {
   opener
   connect
   colors
+  morgan
+  'serve-index': serve-index
+  'serve-static': serve-static
   'faye-websocket': WebSocket
+  parseurl /* from "connect" app */
 
   './watch':  {RecursiveWatcher}
   './option': {OptionHelper}
@@ -66,7 +70,7 @@ class InjectionRouter
   route: (req,res,next)->
     next! if not (req.method in <[ GET HEAD ]>)
 
-    url = connect.utils.parse-url req
+    url = parseurl req
     rel = path.relative @target, url.pathname
     file = path.resolve @path, rel
 
@@ -371,7 +375,7 @@ class SimpleAutoreloadServer
 
     # logger
     if (@get-log-level @options.log) >= @log-level.verbose
-      app.use <| connect.logger '
+      app.use <| morgan '
         :ar-prefix :remote-addr :method 
         ":url HTTP/:http-version" 
         :status :referrer :user-agent
@@ -379,11 +383,11 @@ class SimpleAutoreloadServer
 
     for dirs
       if @options.list-directory
-        app.use ..target, (connect.directory ..path, {+icons})
+        app.use ..target, (serve-index ..path, {+icons})
 
       opts = ({} <<< ..{path,target} <<< {inject,encoding} <<< @{default-pages})
       app.use ..target, (new InjectionRouter opts)~route
-      app.use ..target, (connect.static ..path)
+      app.use ..target, (serve-static ..path)
 
     http.create-server app
 
@@ -395,7 +399,7 @@ class SimpleAutoreloadServer
     catch ex
       @log "error", "broadcast", ex.message
 
-connect.logger.token \ar-prefix, (r)~>
+morgan.token \ar-prefix, (r)~>
   SimpleAutoreloadServer.log-prefix r.headers.host
   |> (+ " httpd".green)
 

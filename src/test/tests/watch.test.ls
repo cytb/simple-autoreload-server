@@ -4,7 +4,7 @@ require \../helper/autoreload .expose global
 describe "watch module", ->
 
   before (done)->
-    @timeout = 2000ms
+    @timeout = 4000ms
     require! {
       path
       '../../lib/watch': {RecursiveWatcher}
