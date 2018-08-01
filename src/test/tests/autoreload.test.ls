@@ -78,6 +78,7 @@ describe "client side script", ->
         assert.not-equal pre.result, post.result
         done!
 
+  .timeout 4000
 
   It "should 'not' let browser 'reload' 'html'
       on 'update' the js.", (done)->
@@ -168,4 +169,3 @@ describe "client side script", ->
       done: ({pre,post})~>
         assert.equal pre.result, post.result
         done!
-
