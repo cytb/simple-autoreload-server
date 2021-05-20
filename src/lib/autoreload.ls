@@ -199,6 +199,8 @@ class SimpleAutoreloadServer
     | typeof level is "string" =>
       for i from 0 til @log-level.length
         return i if @log-level[i].level is level
+      for i from 0 til @log-level.length
+        return i if i.to-string! is level
       2
     | 0 <= level and level < @log-level.length => level
     | _ => 2
