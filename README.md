@@ -1,4 +1,4 @@
-simple-autoreload-server [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=master)](https://travis-ci.org/cytb/simple-autoreload-server)
+simple-autoreload-server [![Build Status](https://travis-ci.org/cytb/simple-autoreload-server.png?branch=main)](https://travis-ci.org/cytb/simple-autoreload-server)
 ========================
 
 A simple Web server on Node.js with autoreload/livereload feature.
@@ -188,7 +188,7 @@ or see '[src/client.ls](./src/client.ls)' for more information.
 
 Version
 ----
-0.2.13
+0.2.14
 
 License
 ----
